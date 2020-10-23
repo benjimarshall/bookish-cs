@@ -20,12 +20,8 @@ namespace Bookish.Web.Controllers
 
         public IActionResult Index()
         {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
+            var user = User.Identity.Name;
+            return View(new Loans(User.Identity.Name));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

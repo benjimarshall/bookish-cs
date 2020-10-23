@@ -1,8 +1,38 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model Loans
+@{
+    ViewData["Title"] = "My Loans";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1 class="display-4">My Loans</h1>
+<br/>
+
+@if (!Model.JoinedLoans.Any())
+{
+    <p>You have no books on loan.</p>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th class="col-xs-1">Due Date</th>
+            <th class="col-xs-4">Title</th>
+            <th class="col-xs-4">Authors</th>
+            <th class="col-xs-1">ISBN</th>
+            <th class="col-xs-1">Copy ID</th>
+            <th class="col-xs-1">More details</th>
+        </tr>
+
+        @foreach (var loan in Model.JoinedLoans)
+        {
+            <tr>
+                <td> @loan.DueDate.ToShortDateString() </td>
+                <td> @loan.Title </td>
+                <td> @loan.Authors </td>
+                <td> @loan.Isbn </td>
+                <td> @loan.CopyId </td>
+                <td> - </td>
+            </tr>
+        }
+    </table>
+    <br/>
+}
