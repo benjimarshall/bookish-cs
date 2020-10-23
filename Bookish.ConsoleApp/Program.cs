@@ -7,9 +7,9 @@ namespace Bookish.ConsoleApp
     {
         static void Main(string[] args)
         {
-            var bookishDb = new BookishService();
+            var bookishService = new BookishService();
 
-            var books = bookishDb.GetBooks();
+            var books = bookishService.GetBooks();
 
             foreach (var book in books)
             {
