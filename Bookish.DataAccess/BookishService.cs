@@ -6,7 +6,14 @@ using Dapper;
 
 namespace Bookish.DataAccess
 {
-    public class BookishService
+    public interface IBookishService
+    {
+        IEnumerable<Book> GetBooks();
+        User? GetUser(string name);
+        IEnumerable<LoanedBook> GetLoanedBooks(string username);
+    }
+
+    public class BookishService : IBookishService
     {
         private readonly IDbConnection connection;
 
@@ -20,6 +27,30 @@ namespace Bookish.DataAccess
             var sqlString = "SELECT isbn, title, authors FROM books";
 
             return connection.Query<Book>(sqlString);
+        }
+
+        public User? GetUser(string name)
+        {
+            var sqlString = $"SELECT id FROM users WHERE username=@name";
+            return connection.QueryFirstOrDefault<User>(sqlString, new { name });
+        }
+
+        public IEnumerable<LoanedBook> GetLoanedBooks(string username)
+        {
+            var userId = GetUser(username)?.Id;
+
+            var sqlString =
+                @"SELECT loans.due AS DueDate,
+                       books.title AS Title,
+	                   books.Authors AS Authors,
+	                   bookcopies.isbn AS ISBN,
+                       bookcopies.id AS CopyId
+                FROM loans
+                INNER JOIN bookcopies ON loans.bookid = bookcopies.id
+                INNER JOIN books ON books.isbn = bookcopies.isbn
+                WHERE loans.userid = @userId;";
+
+            return connection.Query<LoanedBook>(sqlString, new { userId });
         }
     }
 }

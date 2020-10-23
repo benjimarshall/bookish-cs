@@ -1,0 +1,38 @@
+﻿@model LoansViewModel
+@{
+    ViewData["Title"] = "My LoansViewModel";
+}
+
+<h1 class="display-4">My Loans</h1>
+<br/>
+
+@if (!Model.LoanedBooks.Any())
+{
+    <p>You have no books on loan.</p>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th class="col-xs-1">Due Date</th>
+            <th class="col-xs-4">Title</th>
+            <th class="col-xs-4">Authors</th>
+            <th class="col-xs-1">ISBN</th>
+            <th class="col-xs-1">Copy ID</th>
+            <th class="col-xs-1">More details</th>
+        </tr>
+
+        @foreach (var loan in Model.LoanedBooks)
+        {
+            <tr>
+                <td> @loan.DueDate.ToShortDateString() </td>
+                <td> @loan.Title </td>
+                <td> @loan.Authors </td>
+                <td> @loan.Isbn </td>
+                <td> @loan.CopyId </td>
+                <td> - </td>
+            </tr>
+        }
+    </table>
+    <br/>
+}
