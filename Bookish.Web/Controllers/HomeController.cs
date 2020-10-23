@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using Bookish.DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Bookish.Web.Models;
@@ -11,17 +8,20 @@ namespace Bookish.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<HomeController> logger;
+        private readonly BookishService bookishService = new BookishService();
+
 
         public HomeController(ILogger<HomeController> logger)
         {
-            _logger = logger;
+            this.logger = logger;
         }
 
         public IActionResult Index()
         {
-            var user = User.Identity.Name;
-            return View(new Loans(User.Identity.Name));
+            var loans = bookishService.GetJoinedLoans(User.Identity.Name);
+
+            return View(new LoansViewModel(loans));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

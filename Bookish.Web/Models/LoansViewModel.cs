@@ -7,14 +7,14 @@ using Bookish.DataAccess.Records;
 
 namespace Bookish.Web.Models
 {
-    public class Loans
+    public class LoansViewModel
     {
         private BookishService bookishService = new BookishService();
-        public IEnumerable<JoinedLoan> JoinedLoans { get; }
+        public IEnumerable<LoanedBook> JoinedLoans { get; }
 
-        public Loans(string username)
+        public LoansViewModel(IEnumerable<LoanedBook> joinedLoans)
         {
-            JoinedLoans = bookishService.GetJoinedLoans(username);
+            JoinedLoans = joinedLoans;
         }
     }
 }

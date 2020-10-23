@@ -22,28 +22,28 @@ namespace Bookish.DataAccess
             return connection.Query<Book>(sqlString);
         }
 
-        public User GetUser(string name)
+        public User? GetUser(string name)
         {
-            var sqlString = $"SELECT id FROM users WHERE username='{name}'";
-            return connection.QueryFirstOrDefault<User>(sqlString);
+            var sqlString = $"SELECT id FROM users WHERE username=@name";
+            return connection.QueryFirstOrDefault<User>(sqlString, new { name });
         }
 
-        public IEnumerable<JoinedLoan> GetJoinedLoans(string username)
+        public IEnumerable<LoanedBook> GetJoinedLoans(string username)
         {
-            var user = GetUser(username);
+            var userId = GetUser(username)?.Id;
 
             var sqlString =
                 @"SELECT loans.due AS DueDate,
-                       books.title as Title,
-	                   books.Authors as Authors,
+                       books.title AS Title,
+	                   books.Authors AS Authors,
 	                   bookcopies.isbn AS ISBN,
                        bookcopies.id AS CopyId
                 FROM loans
                 INNER JOIN bookcopies ON loans.bookid = bookcopies.id
                 INNER JOIN books ON books.isbn = bookcopies.isbn
-                WHERE loans.userid = '" + user?.Id + "';";
+                WHERE loans.userid = @userId;";
 
-            return connection.Query<JoinedLoan>(sqlString);
+            return connection.Query<LoanedBook>(sqlString, new { userId });
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Bookish.DataAccess.Records
 {
-    public class JoinedLoan
+    public class LoanedBook
     {
         public DateTime DueDate { get; set; }
         public string Title { get; set; }
