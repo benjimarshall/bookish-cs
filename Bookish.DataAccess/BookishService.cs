@@ -6,7 +6,14 @@ using Dapper;
 
 namespace Bookish.DataAccess
 {
-    public class BookishService
+    public interface IBookishService
+    {
+        IEnumerable<Book> GetBooks();
+        User? GetUser(string name);
+        IEnumerable<LoanedBook> GetJoinedLoans(string username);
+    }
+
+    public class BookishService : IBookishService
     {
         private readonly IDbConnection connection;
 

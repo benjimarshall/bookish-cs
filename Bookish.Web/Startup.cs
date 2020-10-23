@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Bookish.DataAccess;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Bookish.Web.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -63,6 +59,8 @@ namespace Bookish.Web
                     .RequireAuthenticatedUser()
                     .Build();
             });
+
+            services.AddScoped<IBookishService, BookishService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

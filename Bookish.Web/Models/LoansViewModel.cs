@@ -6,7 +6,6 @@ namespace Bookish.Web.Models
 {
     public class LoansViewModel
     {
-        private BookishService bookishService = new BookishService();
         public IEnumerable<LoanedBook> LoanedBooks { get; }
 
         public LoansViewModel(IEnumerable<LoanedBook> loanedBooks)

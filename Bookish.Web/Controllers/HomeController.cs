@@ -9,11 +9,12 @@ namespace Bookish.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> logger;
-        private readonly BookishService bookishService = new BookishService();
+        private readonly IBookishService bookishService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IBookishService bookishService)
         {
             this.logger = logger;
+            this.bookishService = bookishService;
         }
 
         public IActionResult Index()
