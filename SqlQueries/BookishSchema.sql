@@ -1,10 +1,4 @@
--- Delete and recreate the cat_shelter database
-
--- DROP DATABASE IF EXISTS Bookish;
--- CREATE DATABASE Bookish;
--- USE Bookish;
-
--- Create the tables
+-- Drop the old tables
 
 IF OBJECT_ID('loans') IS NOT NULL
     DROP TABLE loans;
@@ -17,6 +11,8 @@ IF OBJECT_ID('books') IS NOT NULL
 
 IF OBJECT_ID('users') IS NOT NULL
     DROP TABLE users;
+
+-- Create the tables
 
 CREATE TABLE users (
 	id INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
