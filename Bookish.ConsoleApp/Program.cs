@@ -7,7 +7,7 @@ namespace Bookish.ConsoleApp
     {
         static void Main(string[] args)
         {
-            var bookishDb = new BookishDb();
+            var bookishDb = new BookishService();
 
             var books = bookishDb.GetBooks();
 
