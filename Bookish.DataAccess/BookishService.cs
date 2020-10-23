@@ -10,7 +10,7 @@ namespace Bookish.DataAccess
     {
         IEnumerable<Book> GetBooks();
         User? GetUser(string name);
-        IEnumerable<LoanedBook> GetJoinedLoans(string username);
+        IEnumerable<LoanedBook> GetLoanedBooks(string username);
     }
 
     public class BookishService : IBookishService
@@ -35,7 +35,7 @@ namespace Bookish.DataAccess
             return connection.QueryFirstOrDefault<User>(sqlString, new { name });
         }
 
-        public IEnumerable<LoanedBook> GetJoinedLoans(string username)
+        public IEnumerable<LoanedBook> GetLoanedBooks(string username)
         {
             var userId = GetUser(username)?.Id;
 
