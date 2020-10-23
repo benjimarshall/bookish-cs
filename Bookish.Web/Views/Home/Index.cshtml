@@ -6,7 +6,7 @@
 <h1 class="display-4">My Loans</h1>
 <br/>
 
-@if (!Model.JoinedLoans.Any())
+@if (!Model.LoanedBooks.Any())
 {
     <p>You have no books on loan.</p>
 }
@@ -22,7 +22,7 @@ else
             <th class="col-xs-1">More details</th>
         </tr>
 
-        @foreach (var loan in Model.JoinedLoans)
+        @foreach (var loan in Model.LoanedBooks)
         {
             <tr>
                 <td> @loan.DueDate.ToShortDateString() </td>

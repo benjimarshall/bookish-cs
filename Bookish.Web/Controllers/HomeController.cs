@@ -11,7 +11,6 @@ namespace Bookish.Web.Controllers
         private readonly ILogger<HomeController> logger;
         private readonly BookishService bookishService = new BookishService();
 
-
         public HomeController(ILogger<HomeController> logger)
         {
             this.logger = logger;
