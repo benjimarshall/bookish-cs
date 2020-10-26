@@ -11,7 +11,7 @@ namespace Bookish.DataAccess
         IEnumerable<Book> GetBooks();
         User? GetUser(string name);
         IEnumerable<LoanedBook> GetLoanedBooks(string username);
-        public IEnumerable<CataloguedBook> GetCatalogue();
+        IEnumerable<CataloguedBook> GetCatalogue();
     }
 
     public class BookishService : IBookishService
