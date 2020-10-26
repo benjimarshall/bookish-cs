@@ -1,5 +1,4 @@
-﻿
-namespace Bookish.Web.Models
+﻿namespace Bookish.Web.Models
 {
     public class BookSelection
     {

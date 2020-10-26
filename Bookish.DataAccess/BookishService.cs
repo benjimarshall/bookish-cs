@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -10,7 +9,7 @@ namespace Bookish.DataAccess
 {
     public interface IBookishService
     {
-        public CataloguedBook? GetBook(string isbn);
+        CataloguedBook? GetBook(string isbn);
         IEnumerable<Book> GetBooks();
         User? GetUser(string name);
         IEnumerable<LoanedBook> GetUsersLoanedBooks(string username);
