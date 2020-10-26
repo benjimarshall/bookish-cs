@@ -5,12 +5,9 @@ using System.Text;
 
 namespace Bookish.DataAccess.Records
 {
-    public class LoanedBook
+    public class LoanedBook : Book
     {
         public DateTime? DueDate { get; set; }
-        public string Title { get; set; }
-        public string Authors { get; set; }
-        public string Isbn { get; set; }
         public int CopyId { get; set; }
         public string? Username { get; set; }
     }

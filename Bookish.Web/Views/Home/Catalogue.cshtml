@@ -34,7 +34,7 @@ else
                     <td> @book.Isbn </td>
                     <td> @book.AvailableCopies </td>
                     <td> @book.TotalCopies </td>
-                    <td> @await Html.PartialAsync("_BookDetailsButton", new BookSelection { Isbn = book.Isbn}) </td>
+                    <td> <partial name="_BookDetailsButton" model=@Model.Books.First() /> </td>
                 </tr>
             }
         </tbody>
