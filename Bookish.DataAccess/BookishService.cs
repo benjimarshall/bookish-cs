@@ -11,6 +11,7 @@ namespace Bookish.DataAccess
         IEnumerable<Book> GetBooks();
         User? GetUser(string name);
         IEnumerable<LoanedBook> GetLoanedBooks(string username);
+        public IEnumerable<CataloguedBook> GetCatalogue();
     }
 
     public class BookishService : IBookishService
@@ -51,6 +52,22 @@ namespace Bookish.DataAccess
                 WHERE loans.userid = @userId;";
 
             return connection.Query<LoanedBook>(sqlString, new { userId });
+        }
+
+        public IEnumerable<CataloguedBook> GetCatalogue()
+        {
+            var sqlString =
+                @"SELECT books.title AS Title,
+                    books.authors AS Authors,
+                    books.isbn AS Isbn,
+                    COUNT(bookcopies.id) TotalCopies,
+                    COUNT(bookcopies.id) - COUNT(loans.due) AS AvailableCopies
+                FROM books
+                FULL OUTER JOIN bookcopies ON books.isbn = bookcopies.isbn
+                FULL OUTER JOIN loans ON loans.bookid = bookcopies.id
+                GROUP BY books.isbn, books.title, books.authors;";
+
+            return connection.Query<CataloguedBook>(sqlString);
         }
     }
 }

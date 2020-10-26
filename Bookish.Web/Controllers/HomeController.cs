@@ -24,6 +24,13 @@ namespace Bookish.Web.Controllers
             return View(new LoansViewModel(loans));
         }
 
+        public IActionResult Catalogue()
+        {
+            var books = bookishService.GetCatalogue();
+
+            return View(new CatalogueViewModel(books));
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
