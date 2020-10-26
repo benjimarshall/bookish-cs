@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Linq;
 using Bookish.DataAccess;
+using Bookish.DataAccess.Records;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Bookish.Web.Models;
@@ -34,8 +36,12 @@ namespace Bookish.Web.Controllers
         [HttpGet]
         public IActionResult BookDetails(BookSelection selection)
         {
-            var book = bookishService.GetBook(selection.Isbn);
             var copies = bookishService.GetCopiesOfBook(selection.Isbn);
+            var firstCopy = copies.First();
+
+            var availableCopies = copies.Count(book => !book.DueDate.HasValue);
+
+            var book = new CataloguedBook(firstCopy, copies.Count(), availableCopies);
 
             return View(new BookDetailsViewModel(book, copies));
         }
