@@ -30,7 +30,7 @@ else
                 <td> @loan.Authors </td>
                 <td> @loan.Isbn </td>
                 <td> @loan.CopyId </td>
-                <td> - </td>
+                <td> @await Html.PartialAsync("_BookDetailsButton", new BookSelection { Isbn = loan.Isbn }) </td>
             </tr>
         }
     </table>

@@ -1,0 +1,6 @@
+﻿@model BookSelection
+
+@using (Html.BeginForm("BookDetails", "Home", FormMethod.Get)) {
+    <input type="hidden" name="isbn" value=@Model.Isbn>
+    <input type="submit" value="More details" />
+}
