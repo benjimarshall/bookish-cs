@@ -25,7 +25,7 @@ else
         @foreach (var loan in Model.LoanedBooks)
         {
             <tr>
-                <td> @loan.DueDate.ToShortDateString() </td>
+                <td> @loan.DueDate?.ToShortDateString() </td>
                 <td> @loan.Title </td>
                 <td> @loan.Authors </td>
                 <td> @loan.Isbn </td>

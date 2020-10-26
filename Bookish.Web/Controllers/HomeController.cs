@@ -19,7 +19,7 @@ namespace Bookish.Web.Controllers
 
         public IActionResult Index()
         {
-            var loans = bookishService.GetLoanedBooks(User.Identity.Name);
+            var loans = bookishService.GetUsersLoanedBooks(User.Identity.Name);
 
             return View(new LoansViewModel(loans));
         }
