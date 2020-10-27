@@ -26,11 +26,12 @@ namespace Bookish.Web.Controllers
             return View(new LoansViewModel(loans));
         }
 
-        public IActionResult Catalogue()
+        [HttpGet]
+        public IActionResult Catalogue(SearchParameters searchParameters)
         {
-            var books = bookishService.GetCatalogue();
+            var books = bookishService.SearchCatalogue(searchParameters.Search, searchParameters.Category);
 
-            return View(new CatalogueViewModel(books));
+            return View(new CatalogueViewModel(books, searchParameters));
         }
 
         [Route("BookDetails/{isbn}")]
