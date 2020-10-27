@@ -9,6 +9,5 @@ namespace Bookish.Web.Models
     public class SearchParameters
     {
         public string Search { get; set; }
-        public CatalogueFilterCategory Category { get; set; }
     }
 }

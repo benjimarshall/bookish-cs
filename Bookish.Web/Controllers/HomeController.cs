@@ -26,10 +26,9 @@ namespace Bookish.Web.Controllers
             return View(new LoansViewModel(loans));
         }
 
-        [HttpGet]
         public IActionResult Catalogue(SearchParameters searchParameters)
         {
-            var books = bookishService.SearchCatalogue(searchParameters.Search, searchParameters.Category);
+            var books = bookishService.SearchCatalogue(searchParameters.Search);
 
             return View(new CatalogueViewModel(books, searchParameters));
         }
