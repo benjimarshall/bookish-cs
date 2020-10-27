@@ -29,7 +29,7 @@ else
                 <td> @loan.Authors </td>
                 <td> @loan.Isbn </td>
                 <td> @loan.CopyId </td>
-                <td> <partial name="_BookDetailsButton" model=loan /> </td>
+                <td> <a asp-action="BookDetails" asp-route-isbn=@loan.Isbn> More details </a> </td>
             </tr>
         }
     </table>

@@ -33,7 +33,7 @@ else
                     <td> @book.Isbn </td>
                     <td> @book.AvailableCopies </td>
                     <td> @book.TotalCopies </td>
-                    <td> <partial name="_BookDetailsButton" model=book /> </td>
+                    <td> <a asp-action="BookDetails" asp-route-isbn=@book.Isbn> More details </a> </td>
                 </tr>
             }
         </tbody>

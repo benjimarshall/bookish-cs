@@ -33,10 +33,10 @@ namespace Bookish.Web.Controllers
             return View(new CatalogueViewModel(books));
         }
 
-        [HttpGet]
-        public IActionResult BookDetails(BookSelection selection)
+        [Route("BookDetails/{isbn}")]
+        public IActionResult BookDetails(string isbn)
         {
-            var copies = bookishService.GetCopiesOfBook(selection.Isbn);
+            var copies = bookishService.GetCopiesOfBook(isbn);
 
             return View(new BookDetailsViewModel(copies));
         }
