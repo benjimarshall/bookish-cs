@@ -4,7 +4,6 @@
 }
 
 <h1 class="display-4">My Loans</h1>
-<br/>
 
 @if (!Model.LoanedBooks.Any())
 {
@@ -12,7 +11,7 @@
 }
 else
 {
-    <table class="table">
+    <table class="table top-padded">
         <tr>
             <th class="col-xs-1">Due Date</th>
             <th class="col-xs-4">Title</th>
