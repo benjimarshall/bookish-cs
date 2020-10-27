@@ -13,8 +13,7 @@ namespace Bookish.DataAccess
         IEnumerable<Book> GetBooks();
         User? GetUser(string name);
         IEnumerable<LoanedBook> GetUsersLoanedBooks(string username);
-        IEnumerable<CataloguedBook> GetCatalogue();
-        IEnumerable<CataloguedBook> SearchCatalogue(string searchTerm);
+        IEnumerable<CataloguedBook> GetCatalogue(string searchTerm);
         IEnumerable<LoanedBook> GetCopiesOfBook(string isbn);
     }
 
@@ -83,23 +82,7 @@ namespace Bookish.DataAccess
             return connection.Query<LoanedBook>(sqlString, new { isbn });
         }
 
-        public IEnumerable<CataloguedBook> GetCatalogue()
-        {
-            var sqlString =
-                @"SELECT books.title AS Title,
-                    books.authors AS Authors,
-                    books.isbn AS Isbn,
-                    COUNT(bookcopies.id) TotalCopies,
-                    COUNT(bookcopies.id) - COUNT(loans.due) AS AvailableCopies
-                FROM books
-                FULL OUTER JOIN bookcopies ON books.isbn = bookcopies.isbn
-                FULL OUTER JOIN loans ON loans.bookid = bookcopies.id
-                GROUP BY books.isbn, books.title, books.authors;";
-
-            return connection.Query<CataloguedBook>(sqlString);
-        }
-
-        public IEnumerable<CataloguedBook> SearchCatalogue(string? searchTerm)
+        public IEnumerable<CataloguedBook> GetCatalogue(string? searchTerm = "")
         {
             var sqlString =
                 @"SELECT books.title AS Title,
@@ -110,11 +93,11 @@ namespace Bookish.DataAccess
                   FROM books
                   FULL OUTER JOIN bookcopies ON books.isbn = bookcopies.isbn
                   FULL OUTER JOIN loans ON loans.bookid = bookcopies.id
-                  WHERE books.title   LIKE CONCAT('%', @searchTerm, '%')
-                  OR    books.authors LIKE CONCAT('%', @searchTerm, '%')
+                  WHERE books.title   LIKE @searchTerm
+                  OR    books.authors LIKE @searchTerm
                   GROUP BY books.isbn, books.title, books.authors;";
 
-            return connection.Query<CataloguedBook>(sqlString, new { searchTerm = searchTerm ?? "" });
+            return connection.Query<CataloguedBook>(sqlString, new { searchTerm = "%" + (searchTerm ?? "") + "%" });
         }
     }
 }

@@ -7,12 +7,12 @@ namespace Bookish.Web.Models
     public class CatalogueViewModel
     {
         public IEnumerable<CataloguedBook> Books { get; }
-        public SearchParameters SearchParameters { get; set; }
+        public string Search { get; set; }
 
-        public CatalogueViewModel(IEnumerable<CataloguedBook> books, SearchParameters searchParameters)
+        public CatalogueViewModel(IEnumerable<CataloguedBook> books, string search)
         {
             Books = books;
-            SearchParameters = searchParameters;
+            Search = search;
         }
     }
 }
