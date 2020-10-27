@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bookish.DataAccess.Records;
 
 namespace Bookish.Web.Models
@@ -9,9 +10,12 @@ namespace Bookish.Web.Models
         public IEnumerable<LoanedBook> BookCopies { get; }
         public CataloguedBook Book { get; }
 
-        public BookDetailsViewModel(CataloguedBook book, IEnumerable<LoanedBook> bookCopies)
+        public BookDetailsViewModel(IEnumerable<LoanedBook> bookCopies)
         {
-            Book = book;
+            var firstCopy = bookCopies.First();
+            var availableCopies = bookCopies.Count(book => !book.DueDate.HasValue);
+
+            Book = new CataloguedBook(firstCopy, bookCopies.Count(), availableCopies);
             BookCopies = bookCopies;
         }
 

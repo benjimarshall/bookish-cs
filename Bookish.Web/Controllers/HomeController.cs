@@ -37,13 +37,8 @@ namespace Bookish.Web.Controllers
         public IActionResult BookDetails(BookSelection selection)
         {
             var copies = bookishService.GetCopiesOfBook(selection.Isbn);
-            var firstCopy = copies.First();
 
-            var availableCopies = copies.Count(book => !book.DueDate.HasValue);
-
-            var book = new CataloguedBook(firstCopy, copies.Count(), availableCopies);
-
-            return View(new BookDetailsViewModel(book, copies));
+            return View(new BookDetailsViewModel(copies));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

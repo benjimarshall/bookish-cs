@@ -33,7 +33,7 @@ else
                     <td> @book.Isbn </td>
                     <td> @book.AvailableCopies </td>
                     <td> @book.TotalCopies </td>
-                    <td> <partial name="_BookDetailsButton" model=@Model.Books.First() /> </td>
+                    <td> <partial name="_BookDetailsButton" model=book /> </td>
                 </tr>
             }
         </tbody>
