@@ -20,6 +20,7 @@ VALUES (1, '978-0-12-383872-8'),
        (4, '978-0-12-385060-7'),
        (5, '978-0-262-03293-3'),
        (6, '978-0-262-03293-3');
+       (7, '978-0-13-300214-0');
 SET IDENTITY_INSERT bookcopies OFF;
 
 INSERT INTO loans(bookid, userid, due)

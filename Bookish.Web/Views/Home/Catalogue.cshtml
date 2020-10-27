@@ -5,7 +5,6 @@
 }
 
 <h1 class="display-4">Catalogue</h1>
-<br />
 
 @if (!Model.Books.Any())
 {
@@ -13,7 +12,7 @@
 }
 else
 {
-    <table class="table">
+    <table class="table top-padded">
         <thead>
             <tr>
                 <th width="30%">Title</th>
@@ -34,7 +33,7 @@ else
                     <td> @book.Isbn </td>
                     <td> @book.AvailableCopies </td>
                     <td> @book.TotalCopies </td>
-                    <td> - </td>
+                    <td> <a asp-action="BookDetails" asp-route-isbn=@book.Isbn> More details </a> </td>
                 </tr>
             }
         </tbody>

@@ -1,0 +1,58 @@
+﻿@model Bookish.Web.Models.BookDetailsViewModel
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<h1 class="display-4">Book details</h1>
+
+<table class="table top-padded">
+    <tbody>
+        <tr>
+            <th>Title:</th>
+            <td>@Model.Book.Title</td>
+        </tr>
+        <tr>
+            <th>Authors:</th>
+            <td>@Model.Book.Authors</td>
+        </tr>
+        <tr>
+            <th>ISBN:</th>
+            <td>@Model.Book.Isbn</td>
+        </tr>
+        <tr>
+            <th>Available Copies:</th>
+            <td>@Model.Book.AvailableCopies</td>
+        </tr>
+        <tr>
+            <th>Total Copies:</th>
+            <td>@Model.Book.TotalCopies</td>
+        </tr>
+    </tbody>
+</table>
+
+@if (!Model.BookCopies.Any())
+{
+    <br />
+    <p>There are no copies of this book in the library.</p>
+}
+else
+{
+    <table class="table top-padded">
+        <thead>
+        <tr>
+            <th>Book Copy ID</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var book in Model.BookCopies)
+        {
+            <tr>
+                <td>@book.CopyId</td>
+                <td>@BookDetailsViewModel.GetBookCopyStatus(book)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

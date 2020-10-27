@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Linq;
 using Bookish.DataAccess;
+using Bookish.DataAccess.Records;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Bookish.Web.Models;
@@ -19,7 +21,7 @@ namespace Bookish.Web.Controllers
 
         public IActionResult Index()
         {
-            var loans = bookishService.GetLoanedBooks(User.Identity.Name);
+            var loans = bookishService.GetUsersLoanedBooks(User.Identity.Name);
 
             return View(new LoansViewModel(loans));
         }
@@ -29,6 +31,14 @@ namespace Bookish.Web.Controllers
             var books = bookishService.GetCatalogue();
 
             return View(new CatalogueViewModel(books));
+        }
+
+        [Route("BookDetails/{isbn}")]
+        public IActionResult BookDetails(string isbn)
+        {
+            var copies = bookishService.GetCopiesOfBook(isbn);
+
+            return View(new BookDetailsViewModel(copies));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using Bookish.DataAccess.Records;
 using Dapper;
 
@@ -8,10 +9,12 @@ namespace Bookish.DataAccess
 {
     public interface IBookishService
     {
+        CataloguedBook? GetBook(string isbn);
         IEnumerable<Book> GetBooks();
         User? GetUser(string name);
-        IEnumerable<LoanedBook> GetLoanedBooks(string username);
+        IEnumerable<LoanedBook> GetUsersLoanedBooks(string username);
         IEnumerable<CataloguedBook> GetCatalogue();
+        IEnumerable<LoanedBook> GetCopiesOfBook(string isbn);
     }
 
     public class BookishService : IBookishService
@@ -30,28 +33,53 @@ namespace Bookish.DataAccess
             return connection.Query<Book>(sqlString);
         }
 
+        public CataloguedBook? GetBook(string isbn)
+        {
+            return GetCatalogue().FirstOrDefault(book => book.Isbn == isbn);
+        }
+
         public User? GetUser(string name)
         {
             var sqlString = $"SELECT id FROM users WHERE username=@name";
             return connection.QueryFirstOrDefault<User>(sqlString, new { name });
         }
 
-        public IEnumerable<LoanedBook> GetLoanedBooks(string username)
+        public IEnumerable<LoanedBook> GetUsersLoanedBooks(string username)
         {
             var userId = GetUser(username)?.Id;
 
             var sqlString =
-                @"SELECT loans.due AS DueDate,
-                       books.title AS Title,
-	                   books.Authors AS Authors,
-	                   bookcopies.isbn AS ISBN,
-                       bookcopies.id AS CopyId
+                @"SELECT books.title AS Title,
+                         books.Authors AS Authors,
+                         bookcopies.isbn AS ISBN,
+                         bookcopies.id AS CopyId,
+                         loans.due AS DueDate,
+                         users.username AS Username
                 FROM loans
                 INNER JOIN bookcopies ON loans.bookid = bookcopies.id
                 INNER JOIN books ON books.isbn = bookcopies.isbn
+                INNER JOIN users ON loans.userid = users.id
                 WHERE loans.userid = @userId;";
 
             return connection.Query<LoanedBook>(sqlString, new { userId });
+        }
+
+        public IEnumerable<LoanedBook> GetCopiesOfBook(string isbn)
+        {
+            var sqlString =
+                @"SELECT books.title AS Title,
+                         books.Authors AS Authors,
+                         bookcopies.isbn AS ISBN,
+                         bookcopies.id AS CopyId,
+                         loans.due AS DueDate,
+                         users.username AS Username
+                FROM books
+                INNER JOIN bookcopies ON books.isbn = bookcopies.isbn
+                LEFT JOIN loans ON loans.bookid = bookcopies.id
+                LEFT JOIN users ON loans.userid = users.id
+                WHERE books.isbn = @isbn;";
+
+            return connection.Query<LoanedBook>(sqlString, new { isbn });
         }
 
         public IEnumerable<CataloguedBook> GetCatalogue()
@@ -71,3 +99,4 @@ namespace Bookish.DataAccess
         }
     }
 }
+
