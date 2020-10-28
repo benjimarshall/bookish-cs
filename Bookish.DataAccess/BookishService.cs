@@ -11,8 +11,7 @@ namespace Bookish.DataAccess
     {
         CataloguedBook? GetBook(string isbn);
         IEnumerable<Book> GetBooks();
-        User? GetUser(string name);
-        IEnumerable<LoanedBook> GetUsersLoanedBooks(string username);
+        IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId);
         IEnumerable<CataloguedBook> GetCatalogue(string searchTerm);
         IEnumerable<LoanedBook> GetCopiesOfBook(string isbn);
     }
@@ -21,9 +20,9 @@ namespace Bookish.DataAccess
     {
         private readonly IDbConnection connection;
 
-        public BookishService()
+        public BookishService(string connectionString)
         {
-            connection = new SqlConnection("Server = localhost; Database = Bookish; Trusted_Connection = True;");
+            connection = new SqlConnection(connectionString);
         }
 
         public IEnumerable<Book> GetBooks()
@@ -38,27 +37,19 @@ namespace Bookish.DataAccess
             return GetCatalogue().FirstOrDefault(book => book.Isbn == isbn);
         }
 
-        public User? GetUser(string name)
+        public IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId)
         {
-            var sqlString = $"SELECT id FROM users WHERE username=@name";
-            return connection.QueryFirstOrDefault<User>(sqlString, new { name });
-        }
-
-        public IEnumerable<LoanedBook> GetUsersLoanedBooks(string username)
-        {
-            var userId = GetUser(username)?.Id;
-
             var sqlString =
                 @"SELECT books.title AS Title,
                          books.Authors AS Authors,
                          bookcopies.isbn AS ISBN,
                          bookcopies.id AS CopyId,
                          loans.due AS DueDate,
-                         users.username AS Username
+                         AspNetUsers.username AS Username
                 FROM loans
                 INNER JOIN bookcopies ON loans.bookid = bookcopies.id
                 INNER JOIN books ON books.isbn = bookcopies.isbn
-                INNER JOIN users ON loans.userid = users.id
+                INNER JOIN AspNetUsers ON loans.userid = AspNetUsers.id
                 WHERE loans.userid = @userId;";
 
             return connection.Query<LoanedBook>(sqlString, new { userId });
@@ -72,11 +63,11 @@ namespace Bookish.DataAccess
                          bookcopies.isbn AS ISBN,
                          bookcopies.id AS CopyId,
                          loans.due AS DueDate,
-                         users.username AS Username
+                         AspNetUsers.username AS Username
                 FROM books
                 INNER JOIN bookcopies ON books.isbn = bookcopies.isbn
                 LEFT JOIN loans ON loans.bookid = bookcopies.id
-                LEFT JOIN users ON loans.userid = users.id
+                LEFT JOIN AspNetUsers ON loans.userid = AspNetUsers.id
                 WHERE books.isbn = @isbn;";
 
             return connection.Query<LoanedBook>(sqlString, new { isbn });
