@@ -6,6 +6,7 @@ using Bookish.DataAccess.Records;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Bookish.Web.Models;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Bookish.Web.Controllers
 {
@@ -43,14 +44,17 @@ namespace Bookish.Web.Controllers
         public IActionResult BookDetails(string isbn)
         {
             var copies = bookishService.GetCopiesOfBook(isbn);
+            if (!copies.Any())
+            {
+                return StatusCode(404);
+            }
 
             return View(new BookDetailsViewModel(copies));
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View("UnknownError");
         }
 
         public IActionResult AddBook(
@@ -80,7 +84,24 @@ namespace Bookish.Web.Controllers
         {
             var newBooks = barcodeService.GetNewBooks(isbn);
 
+            if (newBooks.Title == null)
+            {
+                return StatusCode(404);
+            }
+
             return View(new BookAddedViewModel(newBooks.Title, newBooks.NewBooks));
+        }
+
+        [Route("StatusCode/{code}")]
+        public new IActionResult StatusCode(int code)
+        {
+            Response.StatusCode = code;
+
+            return code switch
+            {
+                404 => View("PageNotFound"),
+                _ => View("UnknownError")
+            };
         }
     }
 }
