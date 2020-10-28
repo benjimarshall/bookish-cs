@@ -20,9 +20,9 @@ namespace Bookish.DataAccess
     {
         private readonly IDbConnection connection;
 
-        public BookishService(string connectionString)
+        public BookishService(IDbConnection connection)
         {
-            connection = new SqlConnection(connectionString);
+            this.connection = connection;
         }
 
         public IEnumerable<Book> GetBooks()
