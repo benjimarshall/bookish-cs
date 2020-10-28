@@ -1,0 +1,12 @@
+﻿@model BookAddedViewModel
+
+@{
+    ViewData["Title"] = "Book added";
+}
+
+<h1 class="display-4">@Model.Title Added!</h1>
+
+@foreach (var bookId in @Model.CopyIds)
+{
+    <p>Book id: @bookId</p>
+}

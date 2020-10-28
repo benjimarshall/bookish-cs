@@ -45,5 +45,28 @@ namespace Bookish.Web.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public IActionResult AddBookForm(AddBookFormViewModel model) => View(model);
+
+        [HttpPost]
+        public IActionResult BookAdded(AddBookFormViewModel model)
+        {
+            try
+            {
+                var copyIds = bookishService.AddBook(model, model.Copies);
+                return View(new BookAddedViewModel(model.Title, copyIds));
+            }
+            catch (BookishServiceArgumentException e)
+            {
+                model.Message = e.Message;
+                return RedirectToAction("AddBookForm", model);
+            }
+            catch (DuplicateIsbnException e)
+            {
+                model.Message = e.Message;
+                model.InvalidIsbn = true;
+                return RedirectToAction("AddBookForm", model);
+            }
+        }
     }
 }

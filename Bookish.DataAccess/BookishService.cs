@@ -14,6 +14,7 @@ namespace Bookish.DataAccess
         IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId);
         IEnumerable<CataloguedBook> GetCatalogue(string searchTerm);
         IEnumerable<LoanedBook> GetCopiesOfBook(string isbn);
+        IEnumerable<int> AddBook(Book book, int quantity);
     }
 
     public class BookishService : IBookishService
@@ -89,6 +90,49 @@ namespace Bookish.DataAccess
                   GROUP BY books.isbn, books.title, books.authors;";
 
             return connection.Query<CataloguedBook>(sqlString, new { searchTerm = $"%{searchTerm ?? ""}%" });
+        }
+
+        private bool IsbnIsUsed(string isbn)
+        {
+            var sqlString = "SELECT books.isbn FROM books WHERE books.isbn = @isbn";
+
+            var result = connection.Query<string>(sqlString, new {isbn});
+            return result.FirstOrDefault() == isbn;
+        }
+
+        public IEnumerable<int> AddBook(Book book, int quantity)
+        {
+            if (quantity < 1)
+            {
+                throw new BookishServiceArgumentException("At least one book must be added");
+            }
+
+            if (IsbnIsUsed(book.Isbn))
+            {
+                throw new DuplicateIsbnException("ISBN is already in use");
+            }
+
+            var sqlString =
+                @"INSERT INTO books(isbn, title, authors)
+                  VALUES (@isbn, @title, @authors);
+
+                  DECLARE @i int = 0
+                  WHILE @i < @quantity
+                  BEGIN
+                      SET @i = @i + 1
+                      INSERT INTO bookcopies(isbn)
+                      VALUES (@isbn)
+                  END
+
+                  SELECT bookcopies.id FROM bookcopies WHERE bookcopies.isbn = @isbn;";
+
+            return connection.Query<int>(sqlString, new
+            {
+                isbn = book.Isbn,
+                title = book.Title,
+                authors = book.Authors,
+                quantity
+            });
         }
     }
 }
