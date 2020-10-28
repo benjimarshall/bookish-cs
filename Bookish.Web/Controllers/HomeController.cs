@@ -11,11 +11,16 @@ namespace Bookish.Web.Controllers
     {
         private readonly ILogger<HomeController> logger;
         private readonly IBookishService bookishService;
+        private readonly IBarcodeService barcodeService;
 
-        public HomeController(ILogger<HomeController> logger, IBookishService bookishService)
+        public HomeController(
+            ILogger<HomeController> logger,
+            IBookishService bookishService,
+            IBarcodeService barcodeService)
         {
             this.logger = logger;
             this.bookishService = bookishService;
+            this.barcodeService = barcodeService;
         }
 
         public IActionResult Index()
@@ -53,7 +58,7 @@ namespace Bookish.Web.Controllers
         {
             try
             {
-                var copyIds = bookishService.AddBook(model, model.Copies);
+                var copyIds = barcodeService.AddBook(model, model.Copies);
                 return View(new BookAddedViewModel(model.Title, copyIds));
             }
             catch (BookishServiceArgumentException e)

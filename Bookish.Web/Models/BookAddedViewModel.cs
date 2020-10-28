@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
+using Bookish.DataAccess;
 
 namespace Bookish.Web.Models
 {
     public class BookAddedViewModel
     {
-        public BookAddedViewModel(string title, IEnumerable<int> copyIds)
+        public string Title { get; set; }
+        public IEnumerable<AddedBook> Copies { get; set; }
+
+        public BookAddedViewModel(string title, IEnumerable<AddedBook> copies)
         {
             Title = title;
-            CopyIds = copyIds;
+            Copies = copies;
         }
-
-        public string Title { get; set; }
-        public IEnumerable<int> CopyIds { get; set; }
     }
 }
