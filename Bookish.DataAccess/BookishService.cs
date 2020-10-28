@@ -88,7 +88,7 @@ namespace Bookish.DataAccess
                   OR    books.authors LIKE @searchTerm
                   GROUP BY books.isbn, books.title, books.authors;";
 
-            return connection.Query<CataloguedBook>(sqlString, new { searchTerm = "%" + (searchTerm ?? "") + "%" });
+            return connection.Query<CataloguedBook>(sqlString, new { searchTerm = $"%{searchTerm ?? ""}%" });
         }
     }
 }
