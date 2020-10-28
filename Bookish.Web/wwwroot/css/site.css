@@ -70,6 +70,6 @@ body {
 
 /* Better header alignment */
 
-table.top-padded {
+.top-padded {
      margin-top: 40px;
 }

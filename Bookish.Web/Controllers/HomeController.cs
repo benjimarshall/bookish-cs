@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
-using System.Linq;
+using System.Security.Claims;
 using Bookish.DataAccess;
-using Bookish.DataAccess.Records;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Bookish.Web.Models;
@@ -21,16 +20,16 @@ namespace Bookish.Web.Controllers
 
         public IActionResult Index()
         {
-            var loans = bookishService.GetUsersLoanedBooks(User.Identity.Name);
+            var loans = bookishService.GetUsersLoanedBooks(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             return View(new LoansViewModel(loans));
         }
 
-        public IActionResult Catalogue()
+        public IActionResult Catalogue(string searchTerm)
         {
-            var books = bookishService.GetCatalogue();
+            var books = bookishService.GetCatalogue(searchTerm);
 
-            return View(new CatalogueViewModel(books));
+            return View(new CatalogueViewModel(books, searchTerm));
         }
 
         [Route("BookDetails/{isbn}")]

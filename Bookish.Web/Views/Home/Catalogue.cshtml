@@ -1,4 +1,5 @@
-﻿@model Bookish.Web.Models.CatalogueViewModel
+﻿@using Bookish.DataAccess
+@model Bookish.Web.Models.CatalogueViewModel
 
 @{
     ViewData["Title"] = "Catalogue";
@@ -6,9 +7,11 @@
 
 <h1 class="display-4">Catalogue</h1>
 
+<partial name="_SearchForm" model="@Model"/>
+
 @if (!Model.Books.Any())
 {
-    <p>The catalogue is empty.</p>
+    <p class="top-padded">No books were found.</p>
 }
 else
 {

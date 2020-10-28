@@ -9,15 +9,7 @@ IF OBJECT_ID('bookcopies') IS NOT NULL
 IF OBJECT_ID('books') IS NOT NULL
     DROP TABLE books;
 
-IF OBJECT_ID('users') IS NOT NULL
-    DROP TABLE users;
-
 -- Create the tables
-
-CREATE TABLE users (
-    id INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-    username NVARCHAR(255) NOT NULL
-);
 
 CREATE TABLE books (
     isbn NVARCHAR(17) NOT NULL PRIMARY KEY,
@@ -32,7 +24,6 @@ CREATE TABLE bookcopies (
 
 CREATE TABLE loans (
     bookid int NOT NULL PRIMARY KEY FOREIGN KEY REFERENCES bookcopies (id),
-    userid INT NOT NULL FOREIGN KEY REFERENCES users (id),
+    userid nvarchar(450) NOT NULL FOREIGN KEY REFERENCES AspNetUsers (Id),
     due DATE NOT NULL
 );
-

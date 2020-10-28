@@ -6,7 +6,7 @@ namespace Bookish.Web.Helpers
     {
         public static string ViewActiveStatus(this ViewContext context, string viewName)
         {
-            return context.RouteData.Values["Action"].ToString() == viewName ? "active" : "";
+            return context.RouteData.Values["Action"]?.ToString() == viewName ? "active" : "";
         }
     }
 }
