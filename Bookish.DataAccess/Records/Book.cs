@@ -6,6 +6,15 @@
         public string Title { get; set; }
         public string Authors { get; set; }
 
+        public Book() { }
+
+        public Book(string title, string authors, string isbn)
+        {
+            Title = title;
+            Authors = authors;
+            Isbn = isbn;
+        }
+
         public string Summary => $"{Title} by {Authors}; ISBN: {Isbn}";
     }
 }

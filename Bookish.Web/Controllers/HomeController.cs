@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Security.Claims;
 using Bookish.DataAccess;
+using Bookish.DataAccess.Records;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Bookish.Web.Models;
@@ -51,26 +53,37 @@ namespace Bookish.Web.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult AddBookForm(AddBookFormViewModel model) => View(model);
+        public IActionResult AddBook(string title, string authors, string isbn, int copies,
+            string message, bool invalidIsbn)
+        {
+            return View("AddBook", new AddBookViewModel(title, authors, isbn, copies, message, invalidIsbn));
+        }
 
         [HttpPost]
-        public IActionResult BookAdded(AddBookFormViewModel model)
+        public IActionResult AddBook(string title, string authors, string isbn, int copies)
         {
-            if (model.Copies < 1)
+            if (copies < 1)
             {
-                model.Message = "At least one book must be added";
-                return RedirectToAction("AddBookForm", model);
+                string message = "At least one book must be added";
+                return View("AddBook", new AddBookViewModel(title, authors, isbn, copies, message, false));
             }
 
-            if (bookishService.IsbnIsUsed(model.Isbn))
+            if (bookishService.IsbnIsUsed(isbn))
             {
-                model.Message = "ISBN is already in use";
-                model.InvalidIsbn = true;
-                return RedirectToAction("AddBookForm", model);
+                string message = "ISBN is already in use";
+                return View("AddBook", new AddBookViewModel(title, authors, isbn, copies, message, true));
             }
 
-            var copyIds = barcodeService.AddBook(model, model.Copies);
-            return View(new BookAddedViewModel(model.Title, copyIds));
+            bookishService.AddBook(new Book(title, authors, isbn), copies);
+            return RedirectToAction("BookAdded", new { isbn });
+    }
+
+        public IActionResult BookAdded(string isbn)
+        {
+            var title = bookishService.GetBook(isbn)?.Title;
+            var newBooks = barcodeService.GetNewBooks(isbn);
+
+            return View(new BookAddedViewModel(title, newBooks));
         }
     }
 }

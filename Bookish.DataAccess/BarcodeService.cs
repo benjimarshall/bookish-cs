@@ -11,7 +11,7 @@ namespace Bookish.DataAccess
 {
     public interface IBarcodeService
     {
-        public IEnumerable<NewBook> AddBook(Book book, int quantity);
+        IEnumerable<NewBook> GetNewBooks(string isbn);
     }
 
     public class BarcodeService : IBarcodeService
@@ -23,11 +23,10 @@ namespace Bookish.DataAccess
             this.bookishService = bookishService;
         }
 
-        public IEnumerable<NewBook> AddBook(Book book, int quantity)
+        public IEnumerable<NewBook> GetNewBooks(string isbn)
         {
-            var bookIds = bookishService.AddBook(book, quantity);
-
-            return bookIds.Select(GetNewBook);
+            var bookCopies = bookishService.GetCopiesOfBook(isbn);
+            return bookCopies.Select(book => GetNewBook(book.CopyId));
         }
 
         public static NewBook GetNewBook(int bookId)

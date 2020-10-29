@@ -15,7 +15,7 @@ namespace Bookish.DataAccess
         IEnumerable<CataloguedBook> GetCatalogue(string searchTerm);
         IEnumerable<LoanedBook> GetCopiesOfBook(string isbn);
         bool IsbnIsUsed(string isbn);
-        IEnumerable<int> AddBook(Book book, int numberOfCopies);
+        void AddBook(Book book, int numberOfCopies);
     }
 
     public class BookishService : IBookishService
@@ -101,7 +101,7 @@ namespace Bookish.DataAccess
             return result.FirstOrDefault() == isbn;
         }
 
-        public IEnumerable<int> AddBook(Book book, int numberOfCopies)
+        public void AddBook(Book book, int numberOfCopies)
         {
             var sqlString =
                 @"INSERT INTO books(isbn, title, authors)
@@ -117,7 +117,7 @@ namespace Bookish.DataAccess
 
                   SELECT bookcopies.id FROM bookcopies WHERE bookcopies.isbn = @isbn;";
 
-            return connection.Query<int>(sqlString, new
+            connection.Execute(sqlString, new
             {
                 isbn = book.Isbn,
                 title = book.Title,
