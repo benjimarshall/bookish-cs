@@ -25,12 +25,10 @@ namespace Bookish.DataAccess
 
         public NewBookCollection GetNewBooks(string isbn)
         {
-            var title = bookishService.GetBook(isbn)?.Title;
-
             var bookCopies = bookishService.GetCopiesOfBook(isbn);
             var newBooks = bookCopies.Select(book => GetNewBook(book.CopyId));
 
-            return new NewBookCollection(newBooks, title);
+            return new NewBookCollection(newBooks, bookCopies.FirstOrDefault()?.Title);
         }
 
         public static NewBook GetNewBook(int bookId)
