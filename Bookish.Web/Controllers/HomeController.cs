@@ -33,11 +33,12 @@ namespace Bookish.Web.Controllers
             return View(new LoansViewModel(loans));
         }
 
-        public IActionResult Catalogue(string searchTerm)
+        public IActionResult Catalogue(string searchTerm, int pageNumber = 1)
         {
-            var books = bookishService.GetCatalogue(searchTerm);
+            var books = bookishService.GetCatalogue(searchTerm, pageNumber);
+            var pageCount = bookishService.PageCount(searchTerm);
 
-            return View(new CatalogueViewModel(books, searchTerm));
+            return View(new CatalogueViewModel(books, searchTerm, pageNumber, pageCount));
         }
 
         [Route("BookDetails/{isbn}")]

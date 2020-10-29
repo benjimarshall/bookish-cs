@@ -12,7 +12,8 @@ namespace Bookish.DataAccess
         CataloguedBook? GetBook(string isbn);
         IEnumerable<Book> GetBooks();
         IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId);
-        IEnumerable<CataloguedBook> GetCatalogue(string searchTerm);
+        int PageCount(string? searchTerm = "");
+        IEnumerable<CataloguedBook> GetCatalogue(string? searchTerm, int pageNumber);
         IEnumerable<LoanedBook> GetCopiesOfBook(string isbn);
         bool IsbnIsUsed(string isbn);
         void AddBook(Book book, int numberOfCopies);
@@ -36,7 +37,20 @@ namespace Bookish.DataAccess
 
         public CataloguedBook? GetBook(string isbn)
         {
-            return GetCatalogue().FirstOrDefault(book => book.Isbn == isbn);
+            var sqlString =
+                @"SELECT books.title AS Title,
+                         books.authors AS Authors,
+                         books.isbn AS Isbn,
+                         COUNT(bookcopies.id) TotalCopies,
+                         COUNT(bookcopies.id) - COUNT(loans.due) AS AvailableCopies
+                  FROM books
+                  FULL OUTER JOIN bookcopies ON books.isbn = bookcopies.isbn
+                  FULL OUTER JOIN loans ON loans.bookid = bookcopies.id
+                  WHERE books.isbn = @isbn
+                  GROUP BY books.isbn, books.title, books.authors
+                  ORDER BY books.title;";
+
+            return connection.Query<CataloguedBook>(sqlString, new {isbn}).FirstOrDefault();
         }
 
         public IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId)
@@ -76,7 +90,7 @@ namespace Bookish.DataAccess
             return connection.Query<LoanedBook>(sqlString, new { isbn });
         }
 
-        public IEnumerable<CataloguedBook> GetCatalogue(string? searchTerm = "")
+        public IEnumerable<CataloguedBook> GetCatalogue(string? searchTerm = "", int pageNumber = 1)
         {
             var sqlString =
                 @"SELECT books.title AS Title,
@@ -90,9 +104,31 @@ namespace Bookish.DataAccess
                   WHERE books.title   LIKE @searchTerm
                   OR    books.authors LIKE @searchTerm
                   GROUP BY books.isbn, books.title, books.authors
-                  ORDER BY books.title;";
+                  ORDER BY books.title
+                  OFFSET @rowOffset ROWS
+                  FETCH NEXT 10 ROWS ONLY;";
 
-            return connection.Query<CataloguedBook>(sqlString, new { searchTerm = $"%{searchTerm ?? ""}%" });
+            return connection.Query<CataloguedBook>(sqlString, new
+            {
+                rowOffset = (pageNumber - 1) * 10,
+                searchTerm = $"%{searchTerm ?? ""}%"
+            });
+        }
+
+        public int PageCount(string? searchTerm = "")
+        {
+            var sqlString =
+                @"SELECT COUNT(*) FROM books
+                  WHERE books.title   LIKE @searchTerm
+                  OR    books.authors LIKE @searchTerm;";
+
+            var recordCount = connection.Query<int>(sqlString, new
+            {
+                searchTerm = $"%{searchTerm ?? ""}%"
+            }).FirstOrDefault();
+
+            // Divide record count by 10 and round upwards to find the number of pages needed
+            return ((recordCount - 1) / 10) + 1;
         }
 
         public bool IsbnIsUsed(string isbn)
