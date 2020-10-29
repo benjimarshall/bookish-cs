@@ -11,7 +11,7 @@ namespace Bookish.DataAccess
 {
     public interface IBarcodeService
     {
-        NewBookCollection GetNewBooks(string isbn);
+        IEnumerable<NewBook> GetNewBooks(string isbn);
     }
 
     public class BarcodeService : IBarcodeService
@@ -23,15 +23,12 @@ namespace Bookish.DataAccess
             this.bookishService = bookishService;
         }
 
-        public NewBookCollection GetNewBooks(string isbn)
+        public IEnumerable<NewBook> GetNewBooks(string isbn)
         {
-            var bookCopies = bookishService.GetCopiesOfBook(isbn);
-            var newBooks = bookCopies.Select(book => GetNewBook(book.CopyId));
-
-            return new NewBookCollection(newBooks, bookCopies.FirstOrDefault()?.Title);
+            return bookishService.GetCopiesOfBook(isbn).Select(GetNewBook);
         }
 
-        public static NewBook GetNewBook(int bookId)
+        public static NewBook GetNewBook(LoanedBook book)
         {
             var barcodeImage = (new Barcode
             {
@@ -39,7 +36,7 @@ namespace Bookish.DataAccess
                 BackColor = Color.White,
                 Width = 270,
                 Height = 170,
-            }).Encode(TYPE.CODE39, bookId.ToString());
+            }).Encode(TYPE.CODE39, book.CopyId.ToString());
 
             // Put the barcode in a frame in its image
             var framedBarcode = new Bitmap(300, 200);
@@ -60,7 +57,7 @@ namespace Bookish.DataAccess
             using var stream = new MemoryStream();
             framedBarcode.Save(stream, ImageFormat.Png);
             var imageBytes = stream.ToArray();
-            return new NewBook(bookId, $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}");
+            return new NewBook(book, book.CopyId, $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}");
         }
     }
 }

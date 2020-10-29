@@ -8,6 +8,13 @@
 
         public Book() { }
 
+        public Book(Book book)
+        {
+            Title = book.Title;
+            Authors = book.Authors;
+            Isbn = book.Isbn;
+        }
+
         public Book(string title, string authors, string isbn)
         {
             Title = title;

@@ -52,11 +52,6 @@ namespace Bookish.Web.Controllers
             return View(new BookDetailsViewModel(copies));
         }
 
-        public IActionResult Error()
-        {
-            return View("UnknownError");
-        }
-
         public IActionResult AddBook(
             string title = "",
             string authors = "",
@@ -84,12 +79,17 @@ namespace Bookish.Web.Controllers
         {
             var newBooks = barcodeService.GetNewBooks(isbn);
 
-            if (newBooks.Title == null)
+            if (!newBooks.Any())
             {
                 return StatusCode(404);
             }
 
-            return View(new BookAddedViewModel(newBooks.Title, newBooks.NewBooks));
+            return View(new BookAddedViewModel(newBooks));
+        }
+
+        public IActionResult Error()
+        {
+            return View("UnknownError");
         }
 
         [Route("StatusCode/{code}")]
