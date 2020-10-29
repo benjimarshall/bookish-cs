@@ -78,10 +78,9 @@ namespace Bookish.Web.Controllers
         [Route("BookAdded/{isbn}")]
         public IActionResult BookAdded(string isbn)
         {
-            var title = bookishService.GetBook(isbn)?.Title;
             var newBooks = barcodeService.GetNewBooks(isbn);
 
-            return View(new BookAddedViewModel(title, newBooks));
+            return View(new BookAddedViewModel(newBooks.Title, newBooks.NewBooks));
         }
     }
 }

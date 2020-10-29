@@ -4,23 +4,37 @@ namespace Bookish.Web.Models
 {
     public class AddBookViewModel
     {
-        public string Title { get; set; }
-        public string Authors { get; set; }
-        public string Isbn { get; set; }
-        public bool InvalidIsbn { get; set; }
-        public int Copies { get; set; }
-        public string Message { get; set; }
+        public string Title { get; }
+        public string Authors { get; }
+        public string Isbn { get; }
+        public bool InvalidIsbn { get; }
+        public int Copies { get; }
+        public string ErrorMessage { get; }
 
         public AddBookViewModel(string title, string authors, string isbn, int copies, bool invalidIsbn)
         {
             Title = title;
             Authors = authors;
             Isbn = isbn;
-            Copies = copies >= 1 ? copies : 1;
+            Copies = copies;
 
             InvalidIsbn = invalidIsbn;
-            Message = invalidIsbn ? "ISBN is already in use" :
-                copies < 1 ? "At least one book must be added" : "";
+            ErrorMessage = GenerateErrorMessage(copies, invalidIsbn);
+        }
+
+        private static string GenerateErrorMessage(int copies, bool invalidIsbn)
+        {
+            if (invalidIsbn)
+            {
+                return "ISBN is already in use";
+            }
+
+            if (copies < 1)
+            {
+                return "At least one book must be added";
+            }
+
+            return "";
         }
     }
 }

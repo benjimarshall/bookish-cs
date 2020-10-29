@@ -6,10 +6,10 @@
 
 <h1 class="display-4">Add Book</h1>
 
-@if (!string.IsNullOrEmpty(Model.Message))
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
     <div class="alert alert-danger" role="alert">
-        @Model.Message
+        @Model.ErrorMessage
     </div>
 }
 
