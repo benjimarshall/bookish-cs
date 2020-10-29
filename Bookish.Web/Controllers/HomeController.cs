@@ -53,10 +53,14 @@ namespace Bookish.Web.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult AddBook(string title, string authors, string isbn, int copies,
-            string message, bool invalidIsbn)
+        public IActionResult AddBook(
+            string title,
+            string authors,
+            string isbn,
+            int copies,
+            bool invalidIsbn)
         {
-            return View("AddBook", new AddBookViewModel(title, authors, isbn, copies, message, invalidIsbn));
+            return View(new AddBookViewModel(title, authors, isbn, copies, invalidIsbn));
         }
 
         [HttpPost]
@@ -64,20 +68,19 @@ namespace Bookish.Web.Controllers
         {
             if (copies < 1)
             {
-                string message = "At least one book must be added";
-                return View("AddBook", new AddBookViewModel(title, authors, isbn, copies, message, false));
+                return RedirectToAction("AddBook", new AddBookViewModel(title, authors, isbn, copies, false));
             }
 
             if (bookishService.IsbnIsUsed(isbn))
             {
-                string message = "ISBN is already in use";
-                return View("AddBook", new AddBookViewModel(title, authors, isbn, copies, message, true));
+                return RedirectToAction("AddBook", new AddBookViewModel(title, authors, isbn, copies, true));
             }
 
             bookishService.AddBook(new Book(title, authors, isbn), copies);
             return RedirectToAction("BookAdded", new { isbn });
-    }
+        }
 
+        [Route("BookAdded/{isbn}")]
         public IActionResult BookAdded(string isbn)
         {
             var title = bookishService.GetBook(isbn)?.Title;
