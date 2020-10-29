@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Security.Claims;
 using Bookish.DataAccess;
+using Bookish.DataAccess.Records;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Bookish.Web.Models;
@@ -11,11 +13,16 @@ namespace Bookish.Web.Controllers
     {
         private readonly ILogger<HomeController> logger;
         private readonly IBookishService bookishService;
+        private readonly IBarcodeService barcodeService;
 
-        public HomeController(ILogger<HomeController> logger, IBookishService bookishService)
+        public HomeController(
+            ILogger<HomeController> logger,
+            IBookishService bookishService,
+            IBarcodeService barcodeService)
         {
             this.logger = logger;
             this.bookishService = bookishService;
+            this.barcodeService = barcodeService;
         }
 
         public IActionResult Index()
@@ -44,6 +51,36 @@ namespace Bookish.Web.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult AddBook(
+            string title = "",
+            string authors = "",
+            string isbn = "",
+            int copies = 1)
+        {
+            return View(new AddBookViewModel(title, authors, isbn, copies, bookishService.IsbnIsUsed(isbn)));
+        }
+
+        [HttpPost]
+        [ActionName("AddBook")]
+        public IActionResult AddBookPost(string title, string authors, string isbn, int copies)
+        {
+            if (copies < 1 || bookishService.IsbnIsUsed(isbn))
+            {
+                return RedirectToAction("AddBook", new { title, authors, isbn, copies });
+            }
+
+            bookishService.AddBook(new Book(title, authors, isbn), copies);
+            return RedirectToAction("BookAdded", new { isbn });
+        }
+
+        [Route("BookAdded/{isbn}")]
+        public IActionResult BookAdded(string isbn)
+        {
+            var newBooks = barcodeService.GetNewBooks(isbn);
+
+            return View(new BookAddedViewModel(newBooks.Title, newBooks.NewBooks));
         }
     }
 }

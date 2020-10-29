@@ -1,5 +1,4 @@
-﻿
-namespace Bookish.DataAccess.Records
+﻿namespace Bookish.DataAccess.Records
 {
     public class CataloguedBook : Book
     {
@@ -8,11 +7,9 @@ namespace Bookish.DataAccess.Records
 
         public CataloguedBook() { }
 
-        public CataloguedBook(LoanedBook loanedBook, int totalCopies, int availableCopies)
+        public CataloguedBook(Book loanedBook, int totalCopies, int availableCopies)
+            : base(loanedBook.Title, loanedBook.Authors, loanedBook.Isbn)
         {
-            Title = loanedBook.Title;
-            Authors = loanedBook.Authors;
-            Isbn = loanedBook.Isbn;
             TotalCopies = totalCopies;
             AvailableCopies = availableCopies;
         }

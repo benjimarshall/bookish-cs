@@ -65,6 +65,7 @@ namespace Bookish.Web
 
             services.AddTransient<IDbConnection>(db => new SqlConnection(databaseConnectionString));
             services.AddScoped<IBookishService, BookishService>();
+            services.AddScoped<IBarcodeService, BarcodeService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

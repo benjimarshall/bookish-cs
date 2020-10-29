@@ -1,0 +1,53 @@
+﻿@model AddBookViewModel
+
+@{
+    ViewData["Title"] = "Add Book";
+}
+
+<h1 class="display-4">Add Book</h1>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+
+<form asp-action="AddBook" class="top-padded" method="post">
+    <div class="form-group">
+        <label for="titleInput">Title</label>
+        <input type="text" required
+               asp-for="@Model.Title"
+               id="titleInput"
+               class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="authorsInput">Authors</label>
+        <input type="text" required
+               asp-for="@Model.Authors"
+               id="authorsInput"
+               class="form-control"/>
+    </div>
+
+    <div class="form-group">
+        <label for="isbnInput">ISBN</label>
+        <input type="text" required
+               pattern=".{17,17}"
+               title="ISBN numbers are 17 characters long"
+               asp-for="@Model.Isbn"
+               id="isbnInput"
+               class="form-control @(Model.InvalidIsbn ? "is-invalid" : "")">
+    </div>
+
+    <div class="form-group">
+        <label for="copiesInput">Number of copies</label>
+        <input type="number" required
+               min=1
+               asp-for="@Model.Copies"
+               id="copiesInput"
+               class="form-control">
+    </div>
+
+    <input type="submit" value="Submit" class="btn btn-primary" />
+</form>
