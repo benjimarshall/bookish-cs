@@ -52,7 +52,8 @@ namespace Bookish.DataAccess
                 INNER JOIN bookcopies ON loans.bookid = bookcopies.id
                 INNER JOIN books ON books.isbn = bookcopies.isbn
                 INNER JOIN AspNetUsers ON loans.userid = AspNetUsers.id
-                WHERE loans.userid = @userId;";
+                WHERE loans.userid = @userId
+                ORDER BY loans.due;";
 
             return connection.Query<LoanedBook>(sqlString, new { userId });
         }
@@ -88,7 +89,8 @@ namespace Bookish.DataAccess
                   FULL OUTER JOIN loans ON loans.bookid = bookcopies.id
                   WHERE books.title   LIKE @searchTerm
                   OR    books.authors LIKE @searchTerm
-                  GROUP BY books.isbn, books.title, books.authors;";
+                  GROUP BY books.isbn, books.title, books.authors
+                  ORDER BY books.title;";
 
             return connection.Query<CataloguedBook>(sqlString, new { searchTerm = $"%{searchTerm ?? ""}%" });
         }
