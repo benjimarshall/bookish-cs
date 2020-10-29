@@ -11,7 +11,7 @@ namespace Bookish.DataAccess
 {
     public interface IBarcodeService
     {
-        public IEnumerable<AddedBook> AddBook(Book book, int quantity);
+        public IEnumerable<NewBook> AddBook(Book book, int quantity);
     }
 
     public class BarcodeService : IBarcodeService
@@ -23,37 +23,43 @@ namespace Bookish.DataAccess
             this.bookishService = bookishService;
         }
 
-        public IEnumerable<AddedBook> AddBook(Book book, int quantity)
+        public IEnumerable<NewBook> AddBook(Book book, int quantity)
         {
             var bookIds = bookishService.AddBook(book, quantity);
 
-            var barcode = new Barcode();
+            return bookIds.Select(GetNewBook);
+        }
 
-            return bookIds.Select(bookId =>
+        public static NewBook GetNewBook(int bookId)
+        {
+            var barcodeImage = (new Barcode
             {
-                var barcodeImage = barcode.Encode(TYPE.CODE39, bookId.ToString(), Color.Black, Color.White, 270, 170);
+                ForeColor = Color.Black,
+                BackColor = Color.White,
+                Width = 270,
+                Height = 170,
+            }).Encode(TYPE.CODE39, bookId.ToString());
 
-                // Put the barcode in a frame in its image
-                var framedBarcode = new Bitmap(300, 200);
-                using var g = Graphics.FromImage(framedBarcode);
+            // Put the barcode in a frame in its image
+            var framedBarcode = new Bitmap(300, 200);
+            using var graphicsCanvas = Graphics.FromImage(framedBarcode);
 
-                // Set the whole image to be white
-                g.Clear(Color.White);
+            // Set the whole image to be white
+            graphicsCanvas.Clear(Color.White);
 
-                // Draw a 5px black frame around the edges
-                var framePen = new Pen(Color.Black, 5) { Alignment = System.Drawing.Drawing2D.PenAlignment.Inset };
-                g.DrawRectangle(framePen, new Rectangle(0, 0, 300, 200));
+            // Draw a 5px black frame around the edges
+            var framePen = new Pen(Color.Black, 5) { Alignment = System.Drawing.Drawing2D.PenAlignment.Inset };
+            graphicsCanvas.DrawRectangle(framePen, new Rectangle(0, 0, 300, 200));
 
-                // Insert the barcode image starting at (15, 15)px, where the first 5px are border, and the next 10px
-                // are white padding around the barcode image
-                g.DrawImage(barcodeImage, 15, 15);
+            // Insert the barcode image starting at (15, 15)px, where the first 5px are border, and the next 10px
+            // are white padding around the barcode image
+            graphicsCanvas.DrawImage(barcodeImage, 15, 15);
 
-                // Convert the barcode image into a string base64 encoded in base-64, to be inlined by the website
-                using var stream = new MemoryStream();
-                framedBarcode.Save(stream, ImageFormat.Png);
-                var imageBytes = stream.ToArray();
-                return new AddedBook(bookId, $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}");
-            });
+            // Convert the barcode image into a string base64 encoded in base-64, to be inlined by the website
+            using var stream = new MemoryStream();
+            framedBarcode.Save(stream, ImageFormat.Png);
+            var imageBytes = stream.ToArray();
+            return new NewBook(bookId, $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}");
         }
     }
 }

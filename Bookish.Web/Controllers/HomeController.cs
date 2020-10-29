@@ -56,22 +56,21 @@ namespace Bookish.Web.Controllers
         [HttpPost]
         public IActionResult BookAdded(AddBookFormViewModel model)
         {
-            try
+            if (model.Copies < 1)
             {
-                var copyIds = barcodeService.AddBook(model, model.Copies);
-                return View(new BookAddedViewModel(model.Title, copyIds));
-            }
-            catch (BookishServiceArgumentException e)
-            {
-                model.Message = e.Message;
+                model.Message = "At least one book must be added";
                 return RedirectToAction("AddBookForm", model);
             }
-            catch (DuplicateIsbnException e)
+
+            if (bookishService.IsbnIsUsed(model.Isbn))
             {
-                model.Message = e.Message;
+                model.Message = "ISBN is already in use";
                 model.InvalidIsbn = true;
                 return RedirectToAction("AddBookForm", model);
             }
+
+            var copyIds = barcodeService.AddBook(model, model.Copies);
+            return View(new BookAddedViewModel(model.Title, copyIds));
         }
     }
 }
