@@ -9,7 +9,7 @@ namespace Bookish.Web.Models
         public string Isbn { get; set; }
         public bool InvalidIsbn { get; set; }
         public int Copies { get; set; }
-        public string Message => InvalidIsbn ? "ISBN is already in use" : "";
+        public string Message { get; set; }
 
         public AddBookViewModel(string title, string authors, string isbn, int copies, bool invalidIsbn)
         {
@@ -17,7 +17,10 @@ namespace Bookish.Web.Models
             Authors = authors;
             Isbn = isbn;
             Copies = copies >= 1 ? copies : 1;
+
             InvalidIsbn = invalidIsbn;
+            Message = invalidIsbn ? "ISBN is already in use" :
+                copies < 1 ? "At least one book must be added" : "";
         }
     }
 }

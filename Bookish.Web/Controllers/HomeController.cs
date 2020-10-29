@@ -54,26 +54,21 @@ namespace Bookish.Web.Controllers
         }
 
         public IActionResult AddBook(
-            string title,
-            string authors,
-            string isbn,
-            int copies,
-            bool invalidIsbn)
+            string title = "",
+            string authors = "",
+            string isbn = "",
+            int copies = 1)
         {
-            return View(new AddBookViewModel(title, authors, isbn, copies, invalidIsbn));
+            return View(new AddBookViewModel(title, authors, isbn, copies, bookishService.IsbnIsUsed(isbn)));
         }
 
         [HttpPost]
-        public IActionResult AddBook(string title, string authors, string isbn, int copies)
+        [ActionName("AddBook")]
+        public IActionResult AddBookPost(string title, string authors, string isbn, int copies)
         {
-            if (copies < 1)
+            if (copies < 1 || bookishService.IsbnIsUsed(isbn))
             {
-                return RedirectToAction("AddBook", new AddBookViewModel(title, authors, isbn, copies, false));
-            }
-
-            if (bookishService.IsbnIsUsed(isbn))
-            {
-                return RedirectToAction("AddBook", new AddBookViewModel(title, authors, isbn, copies, true));
+                return RedirectToAction("AddBook", new { title, authors, isbn, copies });
             }
 
             bookishService.AddBook(new Book(title, authors, isbn), copies);
