@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using Bookish.DataAccess.Records;
 using Dapper;
@@ -12,7 +11,7 @@ namespace Bookish.DataAccess
         CataloguedBook? GetBook(string isbn);
         IEnumerable<Book> GetBooks();
         IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId);
-        IEnumerable<CataloguedBook> GetCatalogue(string searchTerm);
+        IEnumerable<CataloguedBook> GetCatalogue(string? searchTerm);
         IEnumerable<LoanedBook> GetCopiesOfBook(string isbn);
         bool IsbnIsUsed(string isbn);
         void AddBook(Book book, int numberOfCopies);
