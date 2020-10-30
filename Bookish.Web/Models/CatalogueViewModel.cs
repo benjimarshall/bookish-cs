@@ -17,10 +17,18 @@ namespace Bookish.Web.Models
         {
             SearchTerm = searchTerm;
             PageCount = (int)Math.Ceiling((double)books.Count() / PageSize);
-            PageNumber = pageNumber >= 1 ? pageNumber : 1;
-            PageNumber = PageNumber > PageCount ? PageCount : PageNumber;
+            PageNumber = GetValidPageNumber(pageNumber, PageCount);
 
             Books = books.Skip((PageNumber - 1) * PageSize).Take(PageSize);
+        }
+
+        private static int GetValidPageNumber(int pageNumber, int pageCount)
+        {
+            if (pageNumber < 1) return 1;
+
+            if (pageNumber > pageCount) return pageCount;
+
+            return pageNumber;
         }
 
         public string PreviousButtonStatus => PageNumber == 1 ? "disabled" : "";

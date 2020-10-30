@@ -89,9 +89,9 @@ namespace Bookish.DataAccess
                   WHERE books.title   LIKE @searchTerm
                   OR    books.authors LIKE @searchTerm
                   GROUP BY books.isbn, books.title, books.authors
-                  ORDER BY books.title;;";
+                  ORDER BY books.title;";
 
-            return connection.Query<CataloguedBook>(sqlString, new {searchTerm = $"%{ searchTerm ?? ""}%" });
+            return connection.Query<CataloguedBook>(sqlString, new { searchTerm = $"%{searchTerm ?? ""}%" });
         }
 
         public bool IsbnIsUsed(string isbn)
