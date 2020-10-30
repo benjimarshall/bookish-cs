@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Bookish.DataAccess;
 using Bookish.DataAccess.Records;
 using Microsoft.AspNetCore.Mvc;
@@ -35,10 +33,9 @@ namespace Bookish.Web.Controllers
 
         public IActionResult Catalogue(string searchTerm, int pageNumber = 1)
         {
-            var books = bookishService.GetCatalogue(searchTerm, pageNumber);
-            var pageCount = bookishService.PageCount(searchTerm);
+            var books = bookishService.GetCatalogue(searchTerm);
 
-            return View(new CatalogueViewModel(books, searchTerm, pageNumber, pageCount));
+            return View(new CatalogueViewModel(books, searchTerm, pageNumber));
         }
 
         [Route("BookDetails/{isbn}")]

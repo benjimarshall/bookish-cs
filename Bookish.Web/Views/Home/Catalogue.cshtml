@@ -44,27 +44,36 @@ else
     <br />
 }
 
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-end">
-        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
-            <a class="page-link" asp-route-searchTerm="@Model.SearchTerm" asp-route-pageNumber="@(Model.PageNumber - 1)">
-                Previous
-            </a>
-        </li>
-
-        @for (var linkNumber = 1; linkNumber <= Model.PageCount; linkNumber++)
-        {
-            <li class="page-item @(linkNumber == Model.PageNumber ? "active" : "")">
-                <a class="page-link" asp-route-searchTerm="@Model.SearchTerm" asp-route-pageNumber="@linkNumber">
-                    @linkNumber
+@if (Model.PageCount > 1)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-end">
+            <li class="page-item @Model.PreviousButtonStatus">
+                <a class="page-link"
+                   asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-pageNumber="@(Model.PageNumber - 1)">
+                    Previous
                 </a>
             </li>
-        }
 
-        <li class="page-item @(Model.PageNumber == Model.PageCount ? "disabled" : "")">
-            <a class="page-link" asp-route-searchTerm="@Model.SearchTerm" asp-route-pageNumber="@(Model.PageNumber + 1)">
-                Next
-            </a>
-        </li>
-    </ul>
-</nav>
+            @for (var linkNumber = 1; linkNumber <= Model.PageCount; linkNumber++)
+            {
+                <li class="page-item @Model.LinkNumberStatus(linkNumber)">
+                    <a class="page-link"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-pageNumber="@linkNumber">
+                        @linkNumber
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @Model.NextButtonStatus">
+                <a class="page-link"
+                   asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-pageNumber="@(Model.PageNumber + 1)">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
