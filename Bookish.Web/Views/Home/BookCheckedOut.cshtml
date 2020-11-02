@@ -1,0 +1,11 @@
+﻿@model Bookish.DataAccess.Records.LoanedBook
+
+@{
+    ViewData["Title"] = "Book checked out!";
+}
+
+<h1 class="display-4">Book checked out!</h1>
+
+<p class="top-padded">
+    You have just checked out @Model.Title. It is due back on @Model.DueDate?.ToShortDateString().
+</p>

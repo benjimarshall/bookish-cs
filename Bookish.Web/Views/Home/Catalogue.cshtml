@@ -19,11 +19,11 @@ else
         <thead>
             <tr>
                 <th width="30%">Title</th>
-                <th width="25%">Authors</th>
+                <th width="20%">Authors</th>
                 <th width="15%">ISBN</th>
                 <th width="10%">Available Copies</th>
                 <th width="10%">Total Copies</th>
-                <th width="10%">More details</th>
+                <th width="15%" class="text-center">More details</th>
             </tr>
         </thead>
 
@@ -36,7 +36,11 @@ else
                     <td> @book.Isbn </td>
                     <td> @book.AvailableCopies </td>
                     <td> @book.TotalCopies </td>
-                    <td> <a asp-action="BookDetails" asp-route-isbn=@book.Isbn> More details </a> </td>
+                    <td class="text-center">
+                        <a class="btn btn-outline-primary" role="button" asp-action="BookDetails" asp-route-isbn=@book.Isbn>
+                            More details
+                        </a>
+                    </td>
                 </tr>
             }
         </tbody>

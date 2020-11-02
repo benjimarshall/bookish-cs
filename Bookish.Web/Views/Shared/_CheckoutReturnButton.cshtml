@@ -1,0 +1,21 @@
+﻿@using System.Security.Claims
+@model Bookish.DataAccess.Records.LoanedBook
+
+@if (@Model.Available)
+{
+    <form asp-action="CheckoutBook" method="post">
+        <input type="hidden" asp-for="@Model.CopyId"/>
+        <button type="submit" class="btn btn-outline-primary">Checkout</button>
+    </form>
+}
+else if (@Model.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+{
+    <form asp-action="ReturnBook" method="post">
+        <input type="hidden" asp-for="@Model.CopyId"/>
+        <button type="submit" class="btn btn-outline-primary">Return</button>
+    </form>
+}
+else
+{
+    <button type="button" class="btn btn-outline-secondary" disabled="">Unavailable</button>
+}
