@@ -24,9 +24,11 @@ namespace Bookish.Web.Controllers
             this.barcodeService = barcodeService;
         }
 
+        private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
         public IActionResult Index()
         {
-            var loans = bookishService.GetUsersLoanedBooks(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var loans = bookishService.GetUsersLoanedBooks(UserId);
 
             return View(new LoansViewModel(loans));
         }
@@ -85,6 +87,89 @@ namespace Bookish.Web.Controllers
             return View(new BookAddedViewModel(newBooks));
         }
 
+        public IActionResult CheckoutBook()
+        {
+            return StatusCode(404);
+        }
+
+        [HttpPost]
+        [ActionName("CheckoutBook")]
+        public IActionResult CheckoutBook(string copyId)
+        {
+            var bookCopy = bookishService.GetBookCopy(copyId);
+
+            if (bookCopy == null)
+            {
+                return StatusCode(404);
+            }
+
+            if (!bookCopy.Available)
+            {
+                return StatusCode(403);
+            }
+
+            bookishService.CheckoutBook(bookCopy, UserId);
+
+            return RedirectToAction("BookCheckedOut", new { copyId });
+        }
+
+        public IActionResult ReturnBook()
+        {
+            return StatusCode(404);
+        }
+
+        [HttpPost]
+        [ActionName("ReturnBook")]
+        public IActionResult ReturnBook(string copyId)
+        {
+            var bookCopy = bookishService.GetBookCopy(copyId);
+
+            if (bookCopy == null)
+            {
+                return StatusCode(404);
+            }
+
+            if (bookCopy.UserId != UserId || bookCopy.Available)
+            {
+                return StatusCode(403);
+            }
+
+            bookishService.ReturnBook(bookCopy);
+
+            return RedirectToAction("BookReturned", new { copyId });
+        }
+
+        [Route("BookCheckedOut/{copyId}")]
+        public IActionResult BookCheckedOut(string copyId)
+        {
+            var bookCopy = bookishService.GetBookCopy(copyId);
+
+            if (bookCopy == null)
+            {
+                return StatusCode(404);
+            }
+
+            if (bookCopy.UserId != UserId)
+            {
+                return StatusCode(403);
+            }
+
+            return View(bookCopy);
+        }
+
+        [Route("BookReturned/{copyId}")]
+        public IActionResult BookReturned(string copyId)
+        {
+            var bookCopy = bookishService.GetBookCopy(copyId);
+
+            if (bookCopy == null || !bookCopy.Available)
+            {
+                return StatusCode(404);
+            }
+
+            return View(bookCopy);
+        }
+
         public IActionResult Error()
         {
             return View("UnknownError");
@@ -97,6 +182,7 @@ namespace Bookish.Web.Controllers
 
             return code switch
             {
+                403 => View("Forbidden"),
                 404 => View("PageNotFound"),
                 _ => View("UnknownError")
             };

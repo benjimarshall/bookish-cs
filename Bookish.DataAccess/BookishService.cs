@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Bookish.DataAccess.Records;
@@ -9,17 +10,21 @@ namespace Bookish.DataAccess
     public interface IBookishService
     {
         CataloguedBook? GetBook(string isbn);
+        LoanedBook? GetBookCopy(string copyId);
         IEnumerable<Book> GetBooks();
         IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId);
         IEnumerable<CataloguedBook> GetCatalogue(string? searchTerm);
         IEnumerable<LoanedBook> GetCopiesOfBook(string isbn);
         bool IsbnIsUsed(string isbn);
         void AddBook(Book book, int numberOfCopies);
+        void CheckoutBook(LoanedBook book, string userId);
+        void ReturnBook(LoanedBook book);
     }
 
     public class BookishService : IBookishService
     {
         private readonly IDbConnection connection;
+        private const int LoanPeriod = 14;
 
         public BookishService(IDbConnection connection)
         {
@@ -38,6 +43,25 @@ namespace Bookish.DataAccess
             return GetCatalogue().FirstOrDefault(book => book.Isbn == isbn);
         }
 
+        public LoanedBook? GetBookCopy(string copyId)
+        {
+            var sqlString =
+                @"SELECT books.title AS Title,
+                         books.Authors AS Authors,
+                         bookcopies.isbn AS ISBN,
+                         bookcopies.id AS CopyId,
+                         loans.due AS DueDate,
+                         AspNetUsers.username AS Username,
+                         AspNetUsers.id AS Userid
+                FROM bookcopies
+                INNER JOIN books ON bookcopies.isbn = books.isbn
+                LEFT JOIN loans ON loans.bookid = bookcopies.id
+                LEFT JOIN AspNetUsers ON loans.userid = AspNetUsers.id
+                WHERE bookcopies.id= @copyId;";
+
+            return connection.Query<LoanedBook>(sqlString, new { copyId }).FirstOrDefault();
+        }
+
         public IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId)
         {
             var sqlString =
@@ -46,7 +70,8 @@ namespace Bookish.DataAccess
                          bookcopies.isbn AS ISBN,
                          bookcopies.id AS CopyId,
                          loans.due AS DueDate,
-                         AspNetUsers.username AS Username
+                         AspNetUsers.username AS Username,
+                         AspNetUsers.id AS Userid
                 FROM loans
                 INNER JOIN bookcopies ON loans.bookid = bookcopies.id
                 INNER JOIN books ON books.isbn = bookcopies.isbn
@@ -65,7 +90,8 @@ namespace Bookish.DataAccess
                          bookcopies.isbn AS ISBN,
                          bookcopies.id AS CopyId,
                          loans.due AS DueDate,
-                         AspNetUsers.username AS Username
+                         AspNetUsers.username AS Username,
+                         AspNetUsers.id AS Userid
                 FROM books
                 INNER JOIN bookcopies ON books.isbn = bookcopies.isbn
                 LEFT JOIN loans ON loans.bookid = bookcopies.id
@@ -125,6 +151,41 @@ namespace Bookish.DataAccess
                 authors = book.Authors,
                 numberOfCopies
             });
+        }
+
+        public void CheckoutBook(LoanedBook book, string userId)
+        {
+            var dueDate = DateTime.Now.AddDays(LoanPeriod);
+
+            var sqlString =
+                @"INSERT INTO loans(bookid, userid, due)
+                  VALUES (@bookId, @userId, @dueDate);";
+
+            var rowsChanged = connection.Execute(sqlString, new
+            {
+                bookId = book.CopyId,
+                userId,
+                dueDate
+            });
+
+            if (rowsChanged != 1)
+            {
+                Console.WriteLine($"Expected to see one row changed after user {userId} checks out copy " +
+                                  $"{book.CopyId}, instead {rowsChanged} rows were changed.");
+            }
+        }
+
+        public void ReturnBook(LoanedBook book)
+        {
+            var sqlString = @"DELETE FROM loans WHERE bookId = @copyId;";
+
+            var rowsChanged = connection.Execute(sqlString, new { copyId = book.CopyId });
+
+            if (rowsChanged != 1)
+            {
+                Console.WriteLine($"Expected to see one row changed after returning {book.CopyId}, instead " +
+                                  $"{rowsChanged} rows were changed.");
+            }
         }
     }
 }

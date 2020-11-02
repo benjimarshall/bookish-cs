@@ -43,14 +43,16 @@ else
         <tr>
             <th>Book Copy ID</th>
             <th>Status</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
         @foreach (var book in Model.BookCopies)
         {
             <tr>
-                <td>@book.CopyId</td>
-                <td>@BookDetailsViewModel.GetBookCopyStatus(book)</td>
+                <td class="align-middle">@book.CopyId</td>
+                <td class="align-middle">@BookDetailsViewModel.GetBookCopyStatus(book)</td>
+                <td class="align-middle"> <partial name="_CheckoutReturnButton" model="@book" /> </td>
             </tr>
         }
         </tbody>

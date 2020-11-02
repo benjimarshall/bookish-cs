@@ -18,7 +18,7 @@ else
             <th class="col-xs-4">Authors</th>
             <th class="col-xs-1">ISBN</th>
             <th class="col-xs-1">Copy ID</th>
-            <th class="col-xs-1">More details</th>
+            <th class="col-xs-1 text-center">More details</th>
         </tr>
 
         @foreach (var loan in Model.LoanedBooks)
@@ -29,7 +29,11 @@ else
                 <td> @loan.Authors </td>
                 <td> @loan.Isbn </td>
                 <td> @loan.CopyId </td>
-                <td> <a asp-action="BookDetails" asp-route-isbn=@loan.Isbn> More details </a> </td>
+                <td class="text-center">
+                    <a class="btn btn-outline-primary" role="button" asp-action="BookDetails" asp-route-isbn=@loan.Isbn>
+                        More details
+                    </a>
+                </td>
             </tr>
         }
     </table>
