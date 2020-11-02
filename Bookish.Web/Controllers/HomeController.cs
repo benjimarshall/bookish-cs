@@ -94,7 +94,7 @@ namespace Bookish.Web.Controllers
 
         [HttpPost]
         [ActionName("CheckoutBook")]
-        public IActionResult CheckoutBookPost(string copyId)
+        public IActionResult CheckoutBook(string copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 
@@ -120,7 +120,7 @@ namespace Bookish.Web.Controllers
 
         [HttpPost]
         [ActionName("ReturnBook")]
-        public IActionResult ReturnBookPost(string copyId)
+        public IActionResult ReturnBook(string copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 

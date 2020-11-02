@@ -24,6 +24,7 @@ namespace Bookish.DataAccess
     public class BookishService : IBookishService
     {
         private readonly IDbConnection connection;
+        const int LoanPeriod = 14;
 
         public BookishService(IDbConnection connection)
         {
@@ -41,6 +42,7 @@ namespace Bookish.DataAccess
         {
             return GetCatalogue().FirstOrDefault(book => book.Isbn == isbn);
         }
+
         public LoanedBook? GetBookCopy(string copyId)
         {
             var sqlString =
@@ -153,25 +155,37 @@ namespace Bookish.DataAccess
 
         public void CheckoutBook(LoanedBook book, string userId)
         {
-            var dueDate = DateTime.Now.AddDays(14);
+            var dueDate = DateTime.Now.AddDays(LoanPeriod);
 
             var sqlString =
                 @"INSERT INTO loans(bookid, userid, due)
                   VALUES (@bookId, @userId, @dueDate);";
 
-            connection.Execute(sqlString, new
+            var rowsChanged = connection.Execute(sqlString, new
             {
                 bookId = book.CopyId,
                 userId,
                 dueDate
             });
+
+            if (rowsChanged != 1)
+            {
+                Console.WriteLine($"Expected to see one row changed after checking out copy {book.CopyId}, instead " +
+                                  $"{rowsChanged} rows were changed.");
+            }
         }
 
         public void ReturnBook(LoanedBook book)
         {
             var sqlString = @"DELETE FROM loans WHERE bookId = @copyId;";
 
-            connection.Execute(sqlString, new { copyId = book.CopyId });
+            var rowsChanged = connection.Execute(sqlString, new { copyId = book.CopyId });
+
+            if (rowsChanged != 1)
+            {
+                Console.WriteLine($"Expected to see one row changed after checking out copy {book.CopyId}, instead " +
+                                  $"{rowsChanged} rows were changed.");
+            }
         }
     }
 }
