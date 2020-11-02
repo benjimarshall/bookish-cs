@@ -24,7 +24,7 @@ namespace Bookish.DataAccess
     public class BookishService : IBookishService
     {
         private readonly IDbConnection connection;
-        const int LoanPeriod = 14;
+        private const int LoanPeriod = 14;
 
         public BookishService(IDbConnection connection)
         {
@@ -170,8 +170,8 @@ namespace Bookish.DataAccess
 
             if (rowsChanged != 1)
             {
-                Console.WriteLine($"Expected to see one row changed after checking out copy {book.CopyId}, instead " +
-                                  $"{rowsChanged} rows were changed.");
+                Console.WriteLine($"Expected to see one row changed after user {userId} checks out copy " +
+                                  $"{book.CopyId}, instead {rowsChanged} rows were changed.");
             }
         }
 
@@ -183,7 +183,7 @@ namespace Bookish.DataAccess
 
             if (rowsChanged != 1)
             {
-                Console.WriteLine($"Expected to see one row changed after checking out copy {book.CopyId}, instead " +
+                Console.WriteLine($"Expected to see one row changed after returning {book.CopyId}, instead " +
                                   $"{rowsChanged} rows were changed.");
             }
         }
