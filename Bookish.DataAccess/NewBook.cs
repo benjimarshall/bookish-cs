@@ -8,7 +8,7 @@ namespace Bookish.DataAccess
         public string Barcode { get; }
 
         public NewBook(Book book, int copyId, string barcode)
-            : base(book.Title, book.Authors, book.Isbn)
+            : base(book.BookId, book.Title, book.Authors, book.Isbn)
         {
             CopyId = copyId;
             Barcode = barcode;

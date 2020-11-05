@@ -9,12 +9,13 @@ namespace Bookish.DataAccess
 {
     public interface IBookishService
     {
-        CataloguedBook? GetBook(string isbn);
+        CataloguedBook? GetBook(int bookId);
         LoanedBook? GetBookCopy(string copyId);
         IEnumerable<Book> GetBooks();
         IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId);
         IEnumerable<CataloguedBook> GetCatalogue(string? searchTerm);
-        IEnumerable<LoanedBook> GetCopiesOfBook(string isbn);
+        IEnumerable<LoanedBook> GetCopiesOfBook(int bookId);
+        IEnumerable<LoanedBook> GetCopiesOfBookByIsbn(string isbn);
         bool IsbnIsUsed(string isbn);
         void AddBook(Book book, int numberOfCopies);
         void CheckoutBook(LoanedBook book, string userId);
@@ -33,31 +34,32 @@ namespace Bookish.DataAccess
 
         public IEnumerable<Book> GetBooks()
         {
-            var sqlString = "SELECT isbn, title, authors FROM books";
+            var sqlString = "SELECT bookId as books.id, isbn, title, authors FROM books";
 
             return connection.Query<Book>(sqlString);
         }
 
-        public CataloguedBook? GetBook(string isbn)
+        public CataloguedBook? GetBook(int bookId)
         {
-            return GetCatalogue().FirstOrDefault(book => book.Isbn == isbn);
+            return GetCatalogue().FirstOrDefault(book => book.BookId  == bookId);
         }
 
         public LoanedBook? GetBookCopy(string copyId)
         {
             var sqlString =
-                @"SELECT books.title AS Title,
+                @"SELECT books.id AS BookId,
+                         books.title AS Title,
                          books.Authors AS Authors,
-                         bookcopies.isbn AS ISBN,
-                         bookcopies.id AS CopyId,
+                         books.isbn AS ISBN,
+                         bookcopies.copyId AS CopyId,
                          loans.due AS DueDate,
                          AspNetUsers.username AS Username,
                          AspNetUsers.id AS Userid
                 FROM bookcopies
-                INNER JOIN books ON bookcopies.isbn = books.isbn
-                LEFT JOIN loans ON loans.bookid = bookcopies.id
+                INNER JOIN books ON bookcopies.bookId = books.id
+                LEFT JOIN loans ON loans.copyId = bookcopies.copyId
                 LEFT JOIN AspNetUsers ON loans.userid = AspNetUsers.id
-                WHERE bookcopies.id= @copyId;";
+                WHERE bookcopies.copyId = @copyId;";
 
             return connection.Query<LoanedBook>(sqlString, new { copyId }).FirstOrDefault();
         }
@@ -65,37 +67,59 @@ namespace Bookish.DataAccess
         public IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId)
         {
             var sqlString =
-                @"SELECT books.title AS Title,
+                @"SELECT books.id AS BookId,
+                         books.title AS Title,
                          books.Authors AS Authors,
-                         bookcopies.isbn AS ISBN,
-                         bookcopies.id AS CopyId,
+                         books.isbn AS ISBN,
+                         bookcopies.copyId AS CopyId,
                          loans.due AS DueDate,
                          AspNetUsers.username AS Username,
                          AspNetUsers.id AS Userid
                 FROM loans
-                INNER JOIN bookcopies ON loans.bookid = bookcopies.id
-                INNER JOIN books ON books.isbn = bookcopies.isbn
-                INNER JOIN AspNetUsers ON loans.userid = AspNetUsers.id
-                WHERE loans.userid = @userId
+                INNER JOIN bookcopies ON loans.copyId = bookcopies.copyId
+                INNER JOIN books ON books.id = bookcopies.bookId
+                INNER JOIN AspNetUsers ON loans.userId = AspNetUsers.id
+                WHERE loans.userId = @userId
                 ORDER BY loans.due;";
 
             return connection.Query<LoanedBook>(sqlString, new { userId });
         }
 
-        public IEnumerable<LoanedBook> GetCopiesOfBook(string isbn)
+        public IEnumerable<LoanedBook> GetCopiesOfBook(int bookId)
         {
             var sqlString =
-                @"SELECT books.title AS Title,
+                @"SELECT books.Id AS BookId,
+                         books.title AS Title,
                          books.Authors AS Authors,
-                         bookcopies.isbn AS ISBN,
-                         bookcopies.id AS CopyId,
+                         books.isbn AS ISBN,
+                         bookcopies.copyId AS CopyId,
                          loans.due AS DueDate,
                          AspNetUsers.username AS Username,
                          AspNetUsers.id AS Userid
                 FROM books
-                INNER JOIN bookcopies ON books.isbn = bookcopies.isbn
-                LEFT JOIN loans ON loans.bookid = bookcopies.id
-                LEFT JOIN AspNetUsers ON loans.userid = AspNetUsers.id
+                INNER JOIN bookcopies ON books.id = bookcopies.bookId
+                LEFT JOIN loans ON loans.copyId = bookcopies.copyId
+                LEFT JOIN AspNetUsers ON loans.userId = AspNetUsers.id
+                WHERE books.id = @bookId;";
+
+            return connection.Query<LoanedBook>(sqlString, new { bookId });
+        }
+
+        public IEnumerable<LoanedBook> GetCopiesOfBookByIsbn(string isbn)
+        {
+            var sqlString =
+                @"SELECT books.Id AS BookId,
+                         books.title AS Title,
+                         books.Authors AS Authors,
+                         books.isbn AS ISBN,
+                         bookcopies.copyId AS CopyId,
+                         loans.due AS DueDate,
+                         AspNetUsers.username AS Username,
+                         AspNetUsers.id AS Userid
+                FROM books
+                INNER JOIN bookcopies ON books.id = bookcopies.bookId
+                LEFT JOIN loans ON loans.copyId = bookcopies.copyId
+                LEFT JOIN AspNetUsers ON loans.userId = AspNetUsers.id
                 WHERE books.isbn = @isbn;";
 
             return connection.Query<LoanedBook>(sqlString, new { isbn });
@@ -104,17 +128,18 @@ namespace Bookish.DataAccess
         public IEnumerable<CataloguedBook> GetCatalogue(string? searchTerm = "")
         {
             var sqlString =
-                @"SELECT books.title AS Title,
+                @"SELECT books.id AS BookId,
+                         books.title AS Title,
                          books.authors AS Authors,
                          books.isbn AS Isbn,
-                         COUNT(bookcopies.id) TotalCopies,
-                         COUNT(bookcopies.id) - COUNT(loans.due) AS AvailableCopies
+                         COUNT(bookcopies.copyId) TotalCopies,
+                         COUNT(bookcopies.copyId) - COUNT(loans.due) AS AvailableCopies
                   FROM books
-                  FULL OUTER JOIN bookcopies ON books.isbn = bookcopies.isbn
-                  FULL OUTER JOIN loans ON loans.bookid = bookcopies.id
+                  FULL OUTER JOIN bookcopies ON books.id = bookcopies.bookId
+                  FULL OUTER JOIN loans ON loans.copyId = bookcopies.copyId
                   WHERE books.title   LIKE @searchTerm
                   OR    books.authors LIKE @searchTerm
-                  GROUP BY books.isbn, books.title, books.authors
+                  GROUP BY books.isbn, books.title, books.authors, books.id
                   ORDER BY books.title;";
 
             return connection.Query<CataloguedBook>(sqlString, new { searchTerm = $"%{searchTerm ?? ""}%" });
@@ -134,15 +159,18 @@ namespace Bookish.DataAccess
                 @"INSERT INTO books(isbn, title, authors)
                   VALUES (@isbn, @title, @authors);
 
+                  DECLARE @InsertedBookId AS int
+                  SET @InsertedBookId = SCOPE_IDENTITY();
+
                   DECLARE @i int = 0
                   WHILE @i < @numberOfCopies
                   BEGIN
                       SET @i = @i + 1
-                      INSERT INTO bookcopies(isbn)
-                      VALUES (@isbn)
+                      INSERT INTO bookcopies(bookId)
+                      VALUES (@InsertedBookId)
                   END
 
-                  SELECT bookcopies.id FROM bookcopies WHERE bookcopies.isbn = @isbn;";
+                  SELECT bookcopies.copyId FROM bookcopies WHERE bookcopies.bookId = @InsertedBookId;";
 
             connection.Execute(sqlString, new
             {
@@ -158,12 +186,12 @@ namespace Bookish.DataAccess
             var dueDate = DateTime.Now.AddDays(LoanPeriod);
 
             var sqlString =
-                @"INSERT INTO loans(bookid, userid, due)
-                  VALUES (@bookId, @userId, @dueDate);";
+                @"INSERT INTO loans(copyId, userId, due)
+                  VALUES (@copyId, @userId, @dueDate);";
 
             var rowsChanged = connection.Execute(sqlString, new
             {
-                bookId = book.CopyId,
+                copyId = book.CopyId,
                 userId,
                 dueDate
             });
@@ -177,7 +205,7 @@ namespace Bookish.DataAccess
 
         public void ReturnBook(LoanedBook book)
         {
-            var sqlString = @"DELETE FROM loans WHERE bookId = @copyId;";
+            var sqlString = @"DELETE FROM loans WHERE copyId = @copyId;";
 
             var rowsChanged = connection.Execute(sqlString, new { copyId = book.CopyId });
 

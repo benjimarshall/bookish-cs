@@ -37,7 +37,7 @@ else
                     <td> @book.AvailableCopies </td>
                     <td> @book.TotalCopies </td>
                     <td class="text-center">
-                        <a class="btn btn-outline-primary" role="button" asp-action="BookDetails" asp-route-isbn=@book.Isbn>
+                        <a class="btn btn-outline-primary" role="button" asp-action="BookDetails" asp-route-bookId=@book.BookId>
                             More details
                         </a>
                     </td>

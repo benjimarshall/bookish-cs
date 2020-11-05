@@ -8,7 +8,7 @@
         public CataloguedBook() { }
 
         public CataloguedBook(Book loanedBook, int totalCopies, int availableCopies)
-            : base(loanedBook.Title, loanedBook.Authors, loanedBook.Isbn)
+            : base(loanedBook.BookId, loanedBook.Title, loanedBook.Authors, loanedBook.Isbn)
         {
             TotalCopies = totalCopies;
             AvailableCopies = availableCopies;

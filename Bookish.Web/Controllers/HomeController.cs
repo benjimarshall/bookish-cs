@@ -40,10 +40,10 @@ namespace Bookish.Web.Controllers
             return View(new CatalogueViewModel(books, searchTerm, pageNumber));
         }
 
-        [Route("BookDetails/{isbn}")]
-        public IActionResult BookDetails(string isbn)
+        [Route("BookDetails/{bookId}")]
+        public IActionResult BookDetails(int bookId)
         {
-            var copies = bookishService.GetCopiesOfBook(isbn);
+            var copies = bookishService.GetCopiesOfBook(bookId);
             if (!copies.Any())
             {
                 return StatusCode(404);
@@ -70,7 +70,7 @@ namespace Bookish.Web.Controllers
                 return RedirectToAction("AddBook", new { title, authors, isbn, copies });
             }
 
-            bookishService.AddBook(new Book(title, authors, isbn), copies);
+            bookishService.AddBook(new Book(0, title, authors, isbn), copies);
             return RedirectToAction("BookAdded", new { isbn });
         }
 

@@ -12,14 +12,15 @@ IF OBJECT_ID('books') IS NOT NULL
 -- Create the tables
 
 CREATE TABLE books (
-    isbn NVARCHAR(17) NOT NULL PRIMARY KEY,
+    id int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+    isbn NVARCHAR(17) NOT NULL UNIQUE,
     title NVARCHAR(255) NOT NULL,
     authors NVARCHAR(255) NOT NULL
 );
 
 CREATE TABLE bookcopies (
-    id int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-    isbn NVARCHAR(17) NOT NULL FOREIGN KEY REFERENCES books (isbn)
+    copyId int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+    bookId int NOT NULL FOREIGN KEY REFERENCES books (id)
 );
 
 CREATE TABLE loans (

@@ -25,7 +25,7 @@ namespace Bookish.DataAccess
 
         public IEnumerable<NewBook> GetNewBooks(string isbn)
         {
-            return bookishService.GetCopiesOfBook(isbn).Select(GetNewBook);
+            return bookishService.GetCopiesOfBookByIsbn(isbn).Select(GetNewBook);
         }
 
         public static NewBook GetNewBook(LoanedBook book)
