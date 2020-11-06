@@ -117,8 +117,9 @@ namespace Bookish.Web.Controllers
         public IActionResult EditBookPost(int bookId, string title, string authors, string isbn, int copies)
         {
             var currentBook = bookishService.GetBook(bookId);
-            if (currentBook == null || copies < 0
-                                    || isbn != currentBook.Isbn && bookishService.IsbnIsUsed(isbn))
+            if (currentBook == null
+                || copies < 0
+                || isbn != currentBook.Isbn && bookishService.IsbnIsUsed(isbn))
             {
                 return RedirectToAction("EditBook", new { bookId, title, authors, isbn, copies });
             }
