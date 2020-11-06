@@ -40,16 +40,16 @@ namespace Bookish.Web.Controllers
             return View(new CatalogueViewModel(books, searchTerm, pageNumber));
         }
 
-        [Route("BookDetails/{isbn}")]
-        public IActionResult BookDetails(string isbn)
+        [Route("Home/BookDetails/{bookId}")]
+        public IActionResult BookDetails(int bookId, bool bookJustEdited = false)
         {
-            var copies = bookishService.GetCopiesOfBook(isbn);
+            var copies = bookishService.GetCopiesOfBook(bookId);
             if (!copies.Any())
             {
                 return StatusCode(404);
             }
 
-            return View(new BookDetailsViewModel(copies));
+            return View(new BookDetailsViewModel(copies, bookJustEdited));
         }
 
         public IActionResult AddBook(
@@ -70,11 +70,11 @@ namespace Bookish.Web.Controllers
                 return RedirectToAction("AddBook", new { title, authors, isbn, copies });
             }
 
-            bookishService.AddBook(new Book(title, authors, isbn), copies);
+            bookishService.AddBook(title, authors, isbn, copies);
             return RedirectToAction("BookAdded", new { isbn });
         }
 
-        [Route("BookAdded/{isbn}")]
+        [Route("Home/BookAdded/{isbn}")]
         public IActionResult BookAdded(string isbn)
         {
             var newBooks = barcodeService.GetNewBooks(isbn);
@@ -87,6 +87,44 @@ namespace Bookish.Web.Controllers
             return View(new BookAddedViewModel(newBooks));
         }
 
+        [Route("Home/EditBook/{bookId}")]
+        public IActionResult EditBook(
+            int bookId,
+            string? title,
+            string? authors,
+            string? isbn,
+            int? numberOfCopiesToAdd)
+        {
+            var book = bookishService.GetBook(bookId);
+            if (book == null) return StatusCode(404);
+
+            return View(new EditBookViewModel(
+                bookId,
+                title ?? book.Title,
+                authors ?? book.Authors,
+                isbn ?? book.Isbn,
+                numberOfCopiesToAdd ?? 0,
+                isbn != null && isbn != book.Isbn && bookishService.IsbnIsUsed(isbn)
+                )
+            );
+        }
+
+        [HttpPost]
+        [Route("Home/EditBook/{bookId}")]
+        public IActionResult EditBookPost(int bookId, string title, string authors, string isbn, int numberOfCopiesToAdd)
+        {
+            var currentBook = bookishService.GetBook(bookId);
+            if (currentBook == null
+                || numberOfCopiesToAdd < 0
+                || isbn != currentBook.Isbn && bookishService.IsbnIsUsed(isbn))
+            {
+                return RedirectToAction("EditBook", new { bookId, title, authors, isbn, numberOfCopiesToAdd });
+            }
+
+            bookishService.EditBook(bookId, title, authors, isbn, numberOfCopiesToAdd);
+            return RedirectToAction("BookDetails", new { bookId, bookJustEdited = true });
+        }
+
         public IActionResult CheckoutBook()
         {
             return StatusCode(404);
@@ -94,7 +132,7 @@ namespace Bookish.Web.Controllers
 
         [HttpPost]
         [ActionName("CheckoutBook")]
-        public IActionResult CheckoutBook(string copyId)
+        public IActionResult CheckoutBook(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 
@@ -108,7 +146,7 @@ namespace Bookish.Web.Controllers
                 return StatusCode(403);
             }
 
-            bookishService.CheckoutBook(bookCopy, UserId);
+            bookishService.CheckoutBook(copyId, UserId);
 
             return RedirectToAction("BookCheckedOut", new { copyId });
         }
@@ -120,7 +158,7 @@ namespace Bookish.Web.Controllers
 
         [HttpPost]
         [ActionName("ReturnBook")]
-        public IActionResult ReturnBook(string copyId)
+        public IActionResult ReturnBook(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 
@@ -134,13 +172,13 @@ namespace Bookish.Web.Controllers
                 return StatusCode(403);
             }
 
-            bookishService.ReturnBook(bookCopy);
+            bookishService.ReturnBook(copyId);
 
             return RedirectToAction("BookReturned", new { copyId });
         }
 
-        [Route("BookCheckedOut/{copyId}")]
-        public IActionResult BookCheckedOut(string copyId)
+        [Route("Home/BookCheckedOut/{copyId}")]
+        public IActionResult BookCheckedOut(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 
@@ -157,8 +195,8 @@ namespace Bookish.Web.Controllers
             return View(bookCopy);
         }
 
-        [Route("BookReturned/{copyId}")]
-        public IActionResult BookReturned(string copyId)
+        [Route("Home/BookReturned/{copyId}")]
+        public IActionResult BookReturned(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 
@@ -175,7 +213,7 @@ namespace Bookish.Web.Controllers
             return View("UnknownError");
         }
 
-        [Route("StatusCode/{code}")]
+        [Route("Home/StatusCode/{code}")]
         public new IActionResult StatusCode(int code)
         {
             Response.StatusCode = code;

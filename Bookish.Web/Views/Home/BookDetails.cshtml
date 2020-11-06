@@ -6,6 +6,13 @@
 
 <h1 class="display-4">Book details</h1>
 
+@if (@Model.BookJustEdited)
+{
+    <div class="alert alert-success" role="alert">
+        This book has been edited successfully.
+    </div>
+}
+
 <table class="table top-padded">
     <tbody>
         <tr>
@@ -21,6 +28,10 @@
             <td>@Model.Book.Isbn</td>
         </tr>
         <tr>
+            <th>Book ID:</th>
+            <td>@Model.Book.BookId</td>
+        </tr>
+        <tr>
             <th>Available Copies:</th>
             <td>@Model.Book.AvailableCopies</td>
         </tr>
@@ -31,6 +42,10 @@
     </tbody>
 </table>
 
+<a class="btn btn-outline-primary" role="button" asp-action="EditBook" asp-route-bookId="@Model.Book.BookId">
+    Edit Book
+</a>
+
 @if (!Model.BookCopies.Any())
 {
     <br />
@@ -40,21 +55,21 @@ else
 {
     <table class="table top-padded">
         <thead>
-        <tr>
-            <th>Book Copy ID</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
+            <tr>
+                <th>Book Copy ID</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var book in Model.BookCopies)
-        {
-            <tr>
-                <td class="align-middle">@book.CopyId</td>
-                <td class="align-middle">@BookDetailsViewModel.GetBookCopyStatus(book)</td>
-                <td class="align-middle"> <partial name="_CheckoutReturnButton" model="@book" /> </td>
-            </tr>
-        }
+            @foreach (var book in Model.BookCopies)
+            {
+                <tr>
+                    <td class="align-middle">@book.CopyId</td>
+                    <td class="align-middle">@BookDetailsViewModel.GetBookCopyStatus(book)</td>
+                    <td class="align-middle"> <partial name="_CheckoutReturnButton" model="@book" /> </td>
+                </tr>
+            }
         </tbody>
     </table>
 }
