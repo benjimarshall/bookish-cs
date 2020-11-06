@@ -123,7 +123,7 @@ namespace Bookish.Web.Controllers
                 return RedirectToAction("EditBook", new { bookId, title, authors, isbn, copies });
             }
 
-            bookishService.EditBook(new EditedBook(bookId, title, authors, isbn, copies));
+            bookishService.EditBook(bookId, title, authors, isbn, copies);
             return RedirectToAction("BookDetails", new { bookId, bookJustEdited = true });
         }
 
@@ -134,7 +134,7 @@ namespace Bookish.Web.Controllers
 
         [HttpPost]
         [ActionName("CheckoutBook")]
-        public IActionResult CheckoutBook(string copyId)
+        public IActionResult CheckoutBook(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 
@@ -148,7 +148,7 @@ namespace Bookish.Web.Controllers
                 return StatusCode(403);
             }
 
-            bookishService.CheckoutBook(bookCopy, UserId);
+            bookishService.CheckoutBook(copyId, UserId);
 
             return RedirectToAction("BookCheckedOut", new { copyId });
         }
@@ -160,7 +160,7 @@ namespace Bookish.Web.Controllers
 
         [HttpPost]
         [ActionName("ReturnBook")]
-        public IActionResult ReturnBook(string copyId)
+        public IActionResult ReturnBook(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 
@@ -174,13 +174,13 @@ namespace Bookish.Web.Controllers
                 return StatusCode(403);
             }
 
-            bookishService.ReturnBook(bookCopy);
+            bookishService.ReturnBook(copyId);
 
             return RedirectToAction("BookReturned", new { copyId });
         }
 
         [Route("BookCheckedOut/{copyId}")]
-        public IActionResult BookCheckedOut(string copyId)
+        public IActionResult BookCheckedOut(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 
@@ -198,7 +198,7 @@ namespace Bookish.Web.Controllers
         }
 
         [Route("BookReturned/{copyId}")]
-        public IActionResult BookReturned(string copyId)
+        public IActionResult BookReturned(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
 

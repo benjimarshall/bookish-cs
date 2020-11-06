@@ -10,7 +10,7 @@ namespace Bookish.DataAccess
     public interface IBookishService
     {
         CataloguedBook? GetBook(int bookId);
-        LoanedBook? GetBookCopy(string copyId);
+        LoanedBook? GetBookCopy(int copyId);
         IEnumerable<Book> GetBooks();
         IEnumerable<LoanedBook> GetUsersLoanedBooks(string userId);
         IEnumerable<CataloguedBook> GetCatalogue(string? searchTerm);
@@ -18,9 +18,9 @@ namespace Bookish.DataAccess
         IEnumerable<LoanedBook> GetCopiesOfBookByIsbn(string isbn);
         bool IsbnIsUsed(string isbn);
         void AddBook(Book book, int numberOfCopies);
-        void CheckoutBook(LoanedBook book, string userId);
-        void ReturnBook(LoanedBook book);
-        void EditBook(EditedBook book);
+        void CheckoutBook(int copyId, string userId);
+        void ReturnBook(int copyId);
+        void EditBook(int bookId, string title, string authors, string isbn, int numberOfMoreCopies);
     }
 
     public class BookishService : IBookishService
@@ -45,7 +45,7 @@ namespace Bookish.DataAccess
             return GetCatalogue().FirstOrDefault(book => book.BookId  == bookId);
         }
 
-        public LoanedBook? GetBookCopy(string copyId)
+        public LoanedBook? GetBookCopy(int copyId)
         {
             var sqlString =
                 @"SELECT books.id AS BookId,
@@ -182,7 +182,7 @@ namespace Bookish.DataAccess
             });
         }
 
-        public void CheckoutBook(LoanedBook book, string userId)
+        public void CheckoutBook(int copyId, string userId)
         {
             var dueDate = DateTime.Now.AddDays(LoanPeriod);
 
@@ -192,7 +192,7 @@ namespace Bookish.DataAccess
 
             var rowsChanged = connection.Execute(sqlString, new
             {
-                copyId = book.CopyId,
+                copyId,
                 userId,
                 dueDate
             });
@@ -200,24 +200,24 @@ namespace Bookish.DataAccess
             if (rowsChanged != 1)
             {
                 Console.WriteLine($"Expected to see one row changed after user {userId} checks out copy " +
-                                  $"{book.CopyId}, instead {rowsChanged} rows were changed.");
+                                  $"{copyId}, instead {rowsChanged} rows were changed.");
             }
         }
 
-        public void ReturnBook(LoanedBook book)
+        public void ReturnBook(int copyId)
         {
             var sqlString = @"DELETE FROM loans WHERE copyId = @copyId;";
 
-            var rowsChanged = connection.Execute(sqlString, new { copyId = book.CopyId });
+            var rowsChanged = connection.Execute(sqlString, new { copyId });
 
             if (rowsChanged != 1)
             {
-                Console.WriteLine($"Expected to see one row changed after returning {book.CopyId}, instead " +
+                Console.WriteLine($"Expected to see one row changed after returning {copyId}, instead " +
                                   $"{rowsChanged} rows were changed.");
             }
         }
 
-        public void EditBook(EditedBook book)
+        public void EditBook(int bookId, string title, string authors, string isbn, int numberOfMoreCopies)
         {
             var sqlString =
                 @"UPDATE books
@@ -236,17 +236,17 @@ namespace Bookish.DataAccess
 
             var rowsChanged = connection.Execute(sqlString, new
             {
-                bookId = book.BookId,
-                title = book.Title,
-                authors = book.Authors,
-                isbn = book.Isbn,
-                numberOfMoreCopies = book.MoreCopies
+                bookId,
+                title,
+                authors,
+                isbn,
+                numberOfMoreCopies
             });
 
-            if (rowsChanged != book.MoreCopies + 1)
+            if (rowsChanged != numberOfMoreCopies + 1)
             {
-                Console.WriteLine($"Expected to see {book.MoreCopies + 1} row(s) changed after editing " +
-                                  $"{book.BookId}, instead {rowsChanged} rows were changed.");
+                Console.WriteLine($"Expected to see {numberOfMoreCopies + 1} row(s) changed after editing " +
+                                  $"{bookId}, instead {rowsChanged} rows were changed.");
             }
         }
     }
