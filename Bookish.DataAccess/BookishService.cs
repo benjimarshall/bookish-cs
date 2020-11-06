@@ -17,7 +17,7 @@ namespace Bookish.DataAccess
         IEnumerable<LoanedBook> GetCopiesOfBook(int bookId);
         IEnumerable<LoanedBook> GetCopiesOfBookByIsbn(string isbn);
         bool IsbnIsUsed(string isbn);
-        void AddBook(Book book, int numberOfCopies);
+        void AddBook(string title, string authors, string isbn, int numberOfCopies);
         void CheckoutBook(int copyId, string userId);
         void ReturnBook(int copyId);
         void EditBook(int bookId, string title, string authors, string isbn, int numberOfMoreCopies);
@@ -154,7 +154,7 @@ namespace Bookish.DataAccess
             return result.FirstOrDefault() == isbn;
         }
 
-        public void AddBook(Book book, int numberOfCopies)
+        public void AddBook(string title, string authors, string isbn, int numberOfCopies)
         {
             var sqlString =
                 @"INSERT INTO books(isbn, title, authors)
@@ -175,9 +175,9 @@ namespace Bookish.DataAccess
 
             connection.Execute(sqlString, new
             {
-                isbn = book.Isbn,
-                title = book.Title,
-                authors = book.Authors,
+                isbn,
+                title,
+                authors,
                 numberOfCopies
             });
         }

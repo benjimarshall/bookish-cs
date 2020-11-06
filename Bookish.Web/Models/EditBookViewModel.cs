@@ -9,7 +9,7 @@ namespace Bookish.Web.Models
         public string Authors { get; }
         public string Isbn { get; }
         public bool InvalidIsbn { get; }
-        public int Copies { get; }
+        public int NumberOfCopiesToAdd { get; }
         public string ErrorMessage { get; }
 
         public EditBookViewModel(
@@ -17,7 +17,7 @@ namespace Bookish.Web.Models
             string title,
             string authors,
             string isbn,
-            int copies,
+            int numberOfCopiesToAdd,
             bool invalidIsbn
         )
         {
@@ -25,20 +25,20 @@ namespace Bookish.Web.Models
             Title = title;
             Authors = authors;
             Isbn = isbn;
-            Copies = copies;
+            NumberOfCopiesToAdd = numberOfCopiesToAdd;
 
             InvalidIsbn = invalidIsbn;
-            ErrorMessage = GenerateErrorMessage(copies, invalidIsbn);
+            ErrorMessage = GenerateErrorMessage(numberOfCopiesToAdd, invalidIsbn);
         }
 
-        private static string GenerateErrorMessage(int copies, bool invalidIsbn)
+        private static string GenerateErrorMessage(int numberOfCopiesToAdd, bool invalidIsbn)
         {
             if (invalidIsbn)
             {
                 return "ISBN is already being used by another book";
             }
 
-            if (copies < 0)
+            if (numberOfCopiesToAdd < 0)
             {
                 return "A negative number of books cannot be added";
             }

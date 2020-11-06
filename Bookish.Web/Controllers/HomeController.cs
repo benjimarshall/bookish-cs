@@ -70,7 +70,7 @@ namespace Bookish.Web.Controllers
                 return RedirectToAction("AddBook", new { title, authors, isbn, copies });
             }
 
-            bookishService.AddBook(new Book(0, title, authors, isbn), copies);
+            bookishService.AddBook(title, authors, isbn, copies);
             return RedirectToAction("BookAdded", new { isbn });
         }
 
@@ -89,23 +89,21 @@ namespace Bookish.Web.Controllers
 
         [Route("Home/EditBook/{bookId}")]
         public IActionResult EditBook(
-            int? bookId,
+            int bookId,
             string? title,
             string? authors,
             string? isbn,
-            int? copies)
+            int? numberOfCopiesToAdd)
         {
-            if (bookId == null) return StatusCode(404);
-
-            var book = bookishService.GetBook(bookId.Value);
+            var book = bookishService.GetBook(bookId);
             if (book == null) return StatusCode(404);
 
             return View(new EditBookViewModel(
-                bookId.Value,
+                bookId,
                 title ?? book.Title,
                 authors ?? book.Authors,
                 isbn ?? book.Isbn,
-                copies ?? 0,
+                numberOfCopiesToAdd ?? 0,
                 isbn != null && isbn != book.Isbn && bookishService.IsbnIsUsed(isbn)
                 )
             );
@@ -113,17 +111,17 @@ namespace Bookish.Web.Controllers
 
         [HttpPost]
         [Route("Home/EditBook/{bookId}")]
-        public IActionResult EditBookPost(int bookId, string title, string authors, string isbn, int copies)
+        public IActionResult EditBookPost(int bookId, string title, string authors, string isbn, int numberOfCopiesToAdd)
         {
             var currentBook = bookishService.GetBook(bookId);
             if (currentBook == null
-                || copies < 0
+                || numberOfCopiesToAdd < 0
                 || isbn != currentBook.Isbn && bookishService.IsbnIsUsed(isbn))
             {
-                return RedirectToAction("EditBook", new { bookId, title, authors, isbn, copies });
+                return RedirectToAction("EditBook", new { bookId, title, authors, isbn, numberOfCopiesToAdd });
             }
 
-            bookishService.EditBook(bookId, title, authors, isbn, copies);
+            bookishService.EditBook(bookId, title, authors, isbn, numberOfCopiesToAdd);
             return RedirectToAction("BookDetails", new { bookId, bookJustEdited = true });
         }
 
