@@ -41,7 +41,7 @@ namespace Bookish.Web.Controllers
         }
 
         [Route("BookDetails/{bookId}")]
-        public IActionResult BookDetails(int bookId)
+        public IActionResult BookDetails(int bookId, bool bookJustEdited = false)
         {
             var copies = bookishService.GetCopiesOfBook(bookId);
             if (!copies.Any())
@@ -49,7 +49,7 @@ namespace Bookish.Web.Controllers
                 return StatusCode(404);
             }
 
-            return View(new BookDetailsViewModel(copies));
+            return View(new BookDetailsViewModel(copies, bookJustEdited));
         }
 
         public IActionResult AddBook(
@@ -85,6 +85,46 @@ namespace Bookish.Web.Controllers
             }
 
             return View(new BookAddedViewModel(newBooks));
+        }
+
+        [Route("EditBook")]
+        [Route("EditBook/{bookId}")]
+        public IActionResult EditBook(
+            int? bookId,
+            string? title,
+            string? authors,
+            string? isbn,
+            int? copies)
+        {
+            if (bookId == null) return StatusCode(404);
+
+            var book = bookishService.GetBook(bookId.Value);
+            if (book == null) return StatusCode(404);
+
+            return View(new EditBookViewModel(
+                bookId.Value,
+                title ?? book.Title,
+                authors ?? book.Authors,
+                isbn ?? book.Isbn,
+                copies ?? 0,
+                isbn != null && isbn != book.Isbn && bookishService.IsbnIsUsed(isbn)
+                )
+            );
+        }
+
+        [HttpPost]
+        [Route("EditBook/{bookId}")]
+        public IActionResult EditBookPost(int bookId, string title, string authors, string isbn, int copies)
+        {
+            var currentBook = bookishService.GetBook(bookId);
+            if (currentBook == null || copies < 0
+                                    || isbn != currentBook.Isbn && bookishService.IsbnIsUsed(isbn))
+            {
+                return RedirectToAction("EditBook", new { bookId, title, authors, isbn, copies });
+            }
+
+            bookishService.EditBook(new EditedBook(bookId, title, authors, isbn, copies));
+            return RedirectToAction("BookDetails", new { bookId, bookJustEdited = true });
         }
 
         public IActionResult CheckoutBook()

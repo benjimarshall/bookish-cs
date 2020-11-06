@@ -6,6 +6,13 @@
 
 <h1 class="display-4">Book details</h1>
 
+@if (@Model.BookJustEdited)
+{
+    <div class="alert alert-success" role="alert">
+        This book has been edited successfully.
+    </div>
+}
+
 <table class="table top-padded">
     <tbody>
         <tr>
@@ -34,6 +41,10 @@
         </tr>
     </tbody>
 </table>
+
+<a class="btn btn-outline-primary" role="button" asp-action="EditBook" asp-route-bookId="@Model.Book.BookId">
+    Edit Book
+</a>
 
 @if (!Model.BookCopies.Any())
 {

@@ -20,6 +20,7 @@ namespace Bookish.DataAccess
         void AddBook(Book book, int numberOfCopies);
         void CheckoutBook(LoanedBook book, string userId);
         void ReturnBook(LoanedBook book);
+        void EditBook(EditedBook book);
     }
 
     public class BookishService : IBookishService
@@ -213,6 +214,39 @@ namespace Bookish.DataAccess
             {
                 Console.WriteLine($"Expected to see one row changed after returning {book.CopyId}, instead " +
                                   $"{rowsChanged} rows were changed.");
+            }
+        }
+
+        public void EditBook(EditedBook book)
+        {
+            var sqlString =
+                @"UPDATE books
+                  SET title = @title,
+                      authors = @authors,
+                      isbn = @isbn
+                  WHERE id = @bookId;
+
+                  DECLARE @i int = 0
+                  WHILE @i<@numberOfMoreCopies
+                  BEGIN
+                      SET @i = @i + 1
+                      INSERT INTO bookcopies(bookId)
+                      VALUES (@bookId)
+                  END";
+
+            var rowsChanged = connection.Execute(sqlString, new
+            {
+                bookId = book.BookId,
+                title = book.Title,
+                authors = book.Authors,
+                isbn = book.Isbn,
+                numberOfMoreCopies = book.MoreCopies
+            });
+
+            if (rowsChanged != book.MoreCopies + 1)
+            {
+                Console.WriteLine($"Expected to see {book.MoreCopies + 1} row(s) changed after editing " +
+                                  $"{book.BookId}, instead {rowsChanged} rows were changed.");
             }
         }
     }
