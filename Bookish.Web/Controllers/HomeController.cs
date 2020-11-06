@@ -40,7 +40,7 @@ namespace Bookish.Web.Controllers
             return View(new CatalogueViewModel(books, searchTerm, pageNumber));
         }
 
-        [Route("BookDetails/{bookId}")]
+        [Route("Home/BookDetails/{bookId}")]
         public IActionResult BookDetails(int bookId, bool bookJustEdited = false)
         {
             var copies = bookishService.GetCopiesOfBook(bookId);
@@ -74,7 +74,7 @@ namespace Bookish.Web.Controllers
             return RedirectToAction("BookAdded", new { isbn });
         }
 
-        [Route("BookAdded/{isbn}")]
+        [Route("Home/BookAdded/{isbn}")]
         public IActionResult BookAdded(string isbn)
         {
             var newBooks = barcodeService.GetNewBooks(isbn);
@@ -87,8 +87,7 @@ namespace Bookish.Web.Controllers
             return View(new BookAddedViewModel(newBooks));
         }
 
-        [Route("EditBook")]
-        [Route("EditBook/{bookId}")]
+        [Route("Home/EditBook/{bookId}")]
         public IActionResult EditBook(
             int? bookId,
             string? title,
@@ -113,7 +112,7 @@ namespace Bookish.Web.Controllers
         }
 
         [HttpPost]
-        [Route("EditBook/{bookId}")]
+        [Route("Home/EditBook/{bookId}")]
         public IActionResult EditBookPost(int bookId, string title, string authors, string isbn, int copies)
         {
             var currentBook = bookishService.GetBook(bookId);
@@ -180,7 +179,7 @@ namespace Bookish.Web.Controllers
             return RedirectToAction("BookReturned", new { copyId });
         }
 
-        [Route("BookCheckedOut/{copyId}")]
+        [Route("Home/BookCheckedOut/{copyId}")]
         public IActionResult BookCheckedOut(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
@@ -198,7 +197,7 @@ namespace Bookish.Web.Controllers
             return View(bookCopy);
         }
 
-        [Route("BookReturned/{copyId}")]
+        [Route("Home/BookReturned/{copyId}")]
         public IActionResult BookReturned(int copyId)
         {
             var bookCopy = bookishService.GetBookCopy(copyId);
@@ -216,7 +215,7 @@ namespace Bookish.Web.Controllers
             return View("UnknownError");
         }
 
-        [Route("StatusCode/{code}")]
+        [Route("Home/StatusCode/{code}")]
         public new IActionResult StatusCode(int code)
         {
             Response.StatusCode = code;
